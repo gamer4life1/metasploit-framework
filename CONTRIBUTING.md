@@ -73,7 +73,7 @@ adding to master is written to a high standard.
 
 - **Do** create a [topic branch] to work on instead of working directly on
   `master`. This helps to: _ Protect the process. _ Ensures users are aware of
-  commits on the branch being considered for merge.  
+  commits on the branch being considered for merge.
    _ Allows for a location for more commits to be offered without mingling with other
   contributor changes. _ Allows contributors to make progress while a PR is still
   being reviewed.
