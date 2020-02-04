@@ -10,16 +10,16 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Install OpenSSH for Windows',
-                      'Description'   => '
+                      'Name' => 'Install OpenSSH for Windows',
+                      'Description' => '
                         This module installs OpenSSH server and client for Windows using PowerShell.
                         SSH on Windows can provide pentesters persistent access to a secure interactive terminal, interactive filesystem access, and port forwarding over SSH.
                       ',
-                      'License'       => MSF_LICENSE,
-                      'Author'        => ['Michael Long <bluesentinel[at]protonmail.com>'],
+                      'License' => MSF_LICENSE,
+                      'Author' => ['Michael Long <bluesentinel[at]protonmail.com>'],
                       'Arch' => [ARCH_X86, ARCH_X64],
-                      'Platform'      => [ 'win' ],
-                      'SessionTypes'  => [ 'meterpreter', 'shell' ],
+                      'Platform' => [ 'win' ],
+                      'SessionTypes' => [ 'meterpreter', 'shell' ],
                       'References'	=> [
                         ['URL', 'https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview'],
                         ['URL', 'https://github.com/PowerShell/openssh-portable']
