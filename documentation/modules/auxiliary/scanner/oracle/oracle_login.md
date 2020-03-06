@@ -1,22 +1,26 @@
 ## Vulnerable Application
 
-This module attempts to authenticate against an Oracle RDBMS instance using username and password
-combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options. The default wordlist
-is [oracle_default_userpass.txt](https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/oracle_default_userpass.txt).
+This module attempts to authenticate against an Oracle RDBMS instance using
+username and password combinations indicated by the USER_FILE, PASS_FILE, and
+USERPASS_FILE options. The default wordlist is
+[oracle_default_userpass.txt](https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/oracle_default_userpass.txt).
 
-Default port for SQL*Net listener is 1521/tcp. If this port is open, try this module to login.
+Default port for SQL\*Net listener is 1521/tcp. If this port is open, try this
+module to login.
 
 ### Install
 
-This module needs nmap 5.50 or above to function.  However due to an [nmap bug](https://github.com/nmap/nmap/issues/1475) versions
-6.50-7.80 may not work.
+This module needs nmap 5.50 or above to function. However due to an
+[nmap bug](https://github.com/nmap/nmap/issues/1475) versions 6.50-7.80 may not
+work.
 
 ```
 nmap -V
 apt-get install nmap
 ```
 
-In addition, if you encounter errors due to OCI libraries not being found, please see the
+In addition, if you encounter errors due to OCI libraries not being found,
+please see the
 [How to get Oracle Support working with Kali Linux](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux).
 
 For Oracle Server, please follow the following
@@ -24,81 +28,83 @@ For Oracle Server, please follow the following
 
 ## Verification Steps
 
-  1. Install Oracle Database server and metasploit components
-  2. Start msfconsole
-  3. Do: ```use auxiliary/scanner/oracle/oracle_login```
-  4. Do: ```run```
+1. Install Oracle Database server and metasploit components
+2. Start msfconsole
+3. Do: `use auxiliary/scanner/oracle/oracle_login`
+4. Do: `run`
 
 ## Options
 
-  **BLANK_PASSWORDS**
+**BLANK_PASSWORDS**
 
-  Try blank passwords for all users
+Try blank passwords for all users
 
-  **BRUTEFORCE_SPEED**
+**BRUTEFORCE_SPEED**
 
-  How fast to bruteforce, scale of 0 to 5
+How fast to bruteforce, scale of 0 to 5
 
-  **DB_ALL_CREDS**
+**DB_ALL_CREDS**
 
-  Try each user/password couple stored in the current database
+Try each user/password couple stored in the current database
 
-  **DB_ALL_PASS**
+**DB_ALL_PASS**
 
-  Add all passwords in the current database to the list to try
+Add all passwords in the current database to the list to try
 
-  **DB_ALL_USERS**
+**DB_ALL_USERS**
 
-  Add all users in the current database to the list to try
+Add all users in the current database to the list to try
 
-  **NMAP_VERBOSE**
+**NMAP_VERBOSE**
 
-  Display nmap output
+Display nmap output
 
-  **PASSWORD**
+**PASSWORD**
 
-  Specify one password to use for all usernames
+Specify one password to use for all usernames
 
-  **PASS_FILE**
+**PASS_FILE**
 
-  File of passwords, one per line.
+File of passwords, one per line.
 
-  **RHOSTS**
+**RHOSTS**
 
-  Target hosts, range CIDR identifier, or hosts file with syntax 'file:<path>'
+Target hosts, range CIDR identifier, or hosts file with syntax 'file:<path>'
 
-  **RPORTS**
+**RPORTS**
 
-  Ports of the target
+Ports of the target
 
-  **SID**
+**SID**
 
-  Instance (SID) to authenticate against. Default `XE`
+Instance (SID) to authenticate against. Default `XE`
 
-  **STOP_ON_SUCCESS**
+**STOP_ON_SUCCESS**
 
-  Stop the bruteforce attack when a valid combination is found
+Stop the bruteforce attack when a valid combination is found
 
-  **THREADS**
+**THREADS**
 
-  Number of concurrent threads (max of one per host)
+Number of concurrent threads (max of one per host)
 
-  **USERNAME**
+**USERNAME**
 
-  Specific username to try for all passwords
+Specific username to try for all passwords
 
-  **USERPASS_FILE**
+**USERPASS_FILE**
 
-  File of username and passwords, separated by space, one set per line. Default `oracle_default_userpass.txt`
+File of username and passwords, separated by space, one set per line. Default
+`oracle_default_userpass.txt`
 
-  **USER_AS_PASS**
+**USER_AS_PASS**
 
-  Try the username as the password for all users
+Try the username as the password for all users
 
-  **USER_FILE**
+**USER_FILE**
 
-  File containing usernames, one per line
+File containing usernames, one per line
 
 ## Scenarios
 
-Unfortunately due to the nmap bug mentioned above, it was not possible to create an example run.
+Unfortunately due to the nmap bug mentioned above, it was not possible to create
+an example run.
