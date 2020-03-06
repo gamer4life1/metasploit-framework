@@ -9,8 +9,7 @@ require 'msf/base/sessions/mettle_config'
 require 'msf/base/sessions/meterpreter_aarch64_apple_ios'
 
 module MetasploitModule
-
-  CachedSize = 796364
+  CachedSize = 795780
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -20,18 +19,18 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Apple_iOS Meterpreter, Reverse TCP Inline',
-        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
-        'Author'        => [
+        'Name' => 'Apple_iOS Meterpreter, Reverse TCP Inline',
+        'Description' => 'Run the Meterpreter / Mettle server payload (stageless)',
+        'Author' => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
           'Brent Cook <brent_cook[at]rapid7.com>',
           'timwr'
         ],
-        'Platform'      => 'apple_ios',
-        'Arch'          => ARCH_AARCH64,
-        'License'       => MSF_LICENSE,
-        'Handler'       => Msf::Handler::ReverseTcp,
-        'Session'       => Msf::Sessions::Meterpreter_aarch64_Apple_iOS
+        'Platform' => 'apple_ios',
+        'Arch' => ARCH_AARCH64,
+        'License' => MSF_LICENSE,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::Meterpreter_aarch64_Apple_iOS
       )
     )
   end

@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 137
 
   include Msf::Payload::Single
@@ -16,21 +15,21 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Unix Command Shell, Bind TCP (via Ruby)',
-      'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'unix',
-      'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::BindTcp,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'cmd',
-      'RequiredCmd' => 'ruby',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+                     'Name' => 'Unix Command Shell, Bind TCP (via Ruby)',
+                     'Description' => 'Continually listen for a connection and spawn a command shell via Ruby',
+                     'Author' => 'kris katterjohn',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::BindTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'ruby',
+                     'Payload' => { 'Offsets' => {}, 'Payload' => '' }))
   end
 
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 

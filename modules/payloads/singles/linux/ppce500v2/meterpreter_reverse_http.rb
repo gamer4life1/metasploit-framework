@@ -9,8 +9,7 @@ require 'msf/base/sessions/mettle_config'
 require 'msf/base/sessions/meterpreter_ppce500v2_linux'
 
 module MetasploitModule
-
-  CachedSize = 1165068
+  CachedSize = 1165164
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -20,18 +19,18 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter, Reverse HTTP Inline',
-        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
-        'Author'        => [
+        'Name' => 'Linux Meterpreter, Reverse HTTP Inline',
+        'Description' => 'Run the Meterpreter / Mettle server payload (stageless)',
+        'Author' => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
           'Brent Cook <brent_cook[at]rapid7.com>',
           'timwr'
         ],
-        'Platform'      => 'linux',
-        'Arch'          => ARCH_PPCE500V2,
-        'License'       => MSF_LICENSE,
-        'Handler'       => Msf::Handler::ReverseHttp,
-        'Session'       => Msf::Sessions::Meterpreter_ppce500v2_Linux
+        'Platform' => 'linux',
+        'Arch' => ARCH_PPCE500V2,
+        'License' => MSF_LICENSE,
+        'Handler' => Msf::Handler::ReverseHttp,
+        'Session' => Msf::Sessions::Meterpreter_ppce500v2_Linux
       )
     )
   end

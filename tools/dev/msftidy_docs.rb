@@ -38,14 +38,14 @@ class MsftidyDoc
   ERROR    = 2
 
   # Some compiles regexes
-  REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
-  REGEX_IS_BLANK_OR_END = /^\s*end\s*$/
+  REGEX_MSF_EXPLOIT = / \< Msf::Exploit/.freeze
+  REGEX_IS_BLANK_OR_END = /^\s*end\s*$/.freeze
 
   attr_reader :full_filepath, :source, :stat, :name, :status
 
   def initialize(source_file)
     @full_filepath = source_file
-    @module_type = File.dirname(File.expand_path(@full_filepath))[/\/modules\/([^\/]+)/, 1]
+    @module_type = File.dirname(File.expand_path(@full_filepath))[%r{/modules/([^/]+)}, 1]
     @source  = load_file(source_file)
     @lines   = @source.lines # returns an enumerator
     @status  = OK
@@ -61,7 +61,8 @@ class MsftidyDoc
   #
   # @return status [Integer] Returns WARNINGS unless we already have an
   # error.
-  def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
+  def warn(txt, line = 0)
+    line_msg = (line > 0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
     @status = WARNING if @status < WARNING
   end
@@ -72,24 +73,25 @@ class MsftidyDoc
   # really ought to be fixed.
   #
   # @return status [Integer] Returns ERRORS
-  def error(txt, line=0)
-    line_msg = (line>0) ? ":#{line}" : ''
+  def error(txt, line = 0)
+    line_msg = (line > 0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
     @status = ERROR if @status < ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
-  def fixed(txt, line=0)
-    line_msg = (line>0) ? ":#{line}" : ''
+  def fixed(txt, line = 0)
+    line_msg = (line > 0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'FIXED'.green}] #{cleanup_text(txt)}"
   end
 
   #
   # Display an info message. Info messages do not alter the exit status.
   #
-  def info(txt, line=0)
+  def info(txt, line = 0)
     return if SUPPRESS_INFO_MESSAGES
-    line_msg = (line>0) ? ":#{line}" : ''
+
+    line_msg = (line > 0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
   end
 
@@ -100,7 +102,7 @@ class MsftidyDoc
   ##
 
   def has_module
-    module_filepath = @full_filepath.sub('documentation/','').sub('/exploit/', '/exploits/')
+    module_filepath = @full_filepath.sub('documentation/', '').sub('/exploit/', '/exploits/')
     found = false
     ['.rb', '.py', '.go'].each do |ext|
       if File.file? module_filepath.sub(/.md$/, ext)
@@ -116,7 +118,7 @@ class MsftidyDoc
   def check_start_with_vuln_app
     unless @lines.first =~ /^## Vulnerable Application$/
       warn('Docs should start with ## Vulnerable Application')
-    end 
+    end
   end
 
   def has_h2_headings
@@ -209,7 +211,7 @@ class MsftidyDoc
       end
 
       # find spaces at EOL not in a code block which is ``` or starts with four spaces
-      if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)
+      if !in_codeblock && ln =~ /[ \t]$/ && ln !~ /^    /
         warn("Spaces at EOL", idx)
       end
 
@@ -221,7 +223,6 @@ class MsftidyDoc
       if ln.length > l && !in_codeblock
         warn("Line too long (#{ln.length}).  Consider a newline (which resolves to a space in markdown) to break it up around #{l} characters.", idx)
       end
-
     end
   end
 
@@ -261,13 +262,13 @@ end
 #
 ##
 
-if __FILE__ == $PROGRAM_NAME
+if $PROGRAM_NAME == __FILE__
   dirs = ARGV
 
   @exit_status = 0
 
-  if dirs.length < 1
-    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+  if dirs.empty?
+    warn "Usage: #{File.basename(__FILE__)} <directory or file>"
     @exit_status = 1
     exit(@exit_status)
   end
@@ -278,15 +279,17 @@ if __FILE__ == $PROGRAM_NAME
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
         next unless File.extname(full_filepath) == '.md'
+
         msftidy = MsftidyDoc.new(full_filepath)
         # Executable files are now assumed to be external modules
         # but also check for some content to be sure
         next if File.executable?(full_filepath) && msftidy.source =~ /require ["']metasploit["']/
+
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
       end
     rescue Errno::ENOENT
-      $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
+      warn "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
     end
   end
 

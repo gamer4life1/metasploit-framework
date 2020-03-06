@@ -11,14 +11,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        	=> 'Discover External IP via Ifconfig.me',
-      'Description'	=> %q{
+      'Name' => 'Discover External IP via Ifconfig.me',
+      'Description'	=> '
         This module checks for the public source IP address of the current
         route to the RHOST by querying the public web application at ifconfig.me.
         It should be noted this module will register activity on ifconfig.me,
         which is not affiliated with Metasploit.
-      },
-      'Author'        => ['RageLtMan'],
+      ',
+      'Author' => ['RageLtMan <rageltman[at]sempervictus>'],
       'License'	=> MSF_LICENSE,
       'References'	=>
         [
@@ -30,12 +30,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('ifconfig.me'),
         OptBool.new('REPORT_HOST', [false, 'Add the found IP to the database', false])
-      ])
+      ]
+    )
 end
 
   def run
     connect
-    res = send_request_cgi({'uri' => '/ip', 'method' => 'GET' })
+    res = send_request_cgi('uri' => '/ip', 'method' => 'GET')
 
     if res.nil?
       print_error("Connection timed out")
@@ -43,7 +44,7 @@ end
     end
 
     our_addr = res.body.strip
-    if Rex::Socket.is_ipv4?(our_addr) or Rex::Socket.is_ipv6?(our_addr)
+    if Rex::Socket.is_ipv4?(our_addr) || Rex::Socket.is_ipv6?(our_addr)
       print_good("Source ip to #{rhost} is #{our_addr}")
       report_host(our_addr) if datastore['REPORT_HOST']
     end

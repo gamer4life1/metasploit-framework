@@ -8,6 +8,7 @@ require 'msf/core/web_services/framework_extension'
 require 'msf/core/web_services/servlet_helper'
 require 'msf/core/web_services/servlet/auth_servlet'
 require 'msf/core/web_services/servlet/json_rpc_servlet'
+require 'msf/core/web_services/json_rpc_exception_handling'
 
 module Msf::WebServices
   class JsonRpcApp < Sinatra::Base
@@ -21,10 +22,16 @@ module Msf::WebServices
     register AuthServlet
     register JsonRpcServlet
 
+    # Custom error handling
+    register JsonRpcExceptionHandling::SinatraExtension
+
     configure do
       set :dispatchers, {}
 
-      set :sessions, {key: 'msf-ws.session', expire_after: 300}
+      # Disables Sinatra HTML Error Responses
+      set :show_exceptions, false
+
+      set :sessions, key: 'msf-ws.session', expire_after: 300
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
       set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)
     end
@@ -81,9 +88,15 @@ module Msf::WebServices
     def db_initialized(db)
       db.check
       true
-    rescue
+    rescue StandardError
       false
     end
 
+    def self.setup_default_middleware(builder)
+      super
+      # Insertion at pos 1 needed to immediately follow Sinatra::ExtendedBase
+      # proc block identical to one used in 'use' method lib/rack/builder:86
+      builder.instance_variable_get(:@use).insert(1, proc { |app| JsonRpcExceptionHandling::RackMiddleware.new(app) })
+    end
   end
 end

@@ -9,24 +9,23 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Linux Gather System and User Information',
-      'Description'   => %q{
-        This module gathers system information. We collect
-        installed packages, installed services, mount information,
-        user list, user bash history and cron jobs
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
-          'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
-          'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
-          'sinn3r', # Testing and modification of original enum_linux
-          'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
-          'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
-        ],
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
-    ))
+                      'Name' => 'Linux Gather System and User Information',
+                      'Description' => '
+                        This module gathers system information. We collect
+                        installed packages, installed services, mount information,
+                        user list, user bash history and cron jobs
+                      ',
+                      'License' => MSF_LICENSE,
+                      'Author' =>
+                        [
+                          'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
+                          'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
+                          'sinn3r', # Testing and modification of original enum_linux
+                          'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
+                          'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
+                        ],
+                      'Platform' => ['linux'],
+                      'SessionTypes' => ['shell', 'meterpreter']))
   end
 
   def run
@@ -37,7 +36,8 @@ class MetasploitModule < Msf::Post
       session,
       "Distro: #{distro[:distro]},Version: #{distro[:version]}, Kernel: #{distro[:kernel]}",
       "linux_info.txt",
-      "Linux Version")
+      "Linux Version"
+    )
 
     # Print the info
     print_good("Info:")
@@ -67,6 +67,7 @@ class MetasploitModule < Msf::Post
     save("Disk info", disks)
     save("Logfiles", logfiles)
     save("Setuid/setgid files", uidgid)
+    save("CPU Vulnerabilities", get_cpu_vulnerabilities)
   end
 
   def save(msg, data, ctype = 'text/plain')
@@ -122,17 +123,21 @@ class MetasploitModule < Msf::Post
     services_installed
   end
 
+  def get_cpu_vulnerabilities
+    execute('grep -r . /sys/devices/system/cpu/vulnerabilities').to_s
+  end
+
   def get_crons(users, user)
     if user == "root" && users
       users = users.chomp.split
       users.each do |u|
-        if u == "root"
-          vprint_status("Enumerating as root")
-          cron_data = ""
-          users.each do |usr|
-            cron_data << "*****Listing cron jobs for #{usr}*****\n"
-            cron_data << execute("crontab -u #{usr} -l") + "\n\n"
-          end
+        next unless u == "root"
+
+        vprint_status("Enumerating as root")
+        cron_data = ""
+        users.each do |usr|
+          cron_data << "*****Listing cron jobs for #{usr}*****\n"
+          cron_data << execute("crontab -u #{usr} -l") + "\n\n"
         end
       end
     else

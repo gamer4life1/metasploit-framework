@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 ###
 #
 # framework-util
@@ -14,9 +15,8 @@ require 'msf/core'
 require 'rex'
 
 module Msf
-module Util
-
-end
+  module Util
+    end
 end
 
 # Executable generation and encoding
@@ -31,3 +31,6 @@ require 'msf/util/db_manager'
 
 # Java deserialization payload generators
 require 'msf/util/java_deserialization'
+
+# .NET deserialization payload generators
+require 'msf/util/dot_net_deserialization'

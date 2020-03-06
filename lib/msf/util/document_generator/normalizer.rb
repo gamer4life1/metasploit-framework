@@ -5,33 +5,32 @@ module Redcarpet
   module Render
     class MsfMdHTML < Redcarpet::Render::HTML
 
-      def block_code(code, language)
-        code = $1 if code =~ /^<ruby>(.+)<\/ruby>/m
+      def block_code(code, _language)
+        code = Regexp.last_match(1) if code =~ %r{^<ruby>(.+)</ruby>}m
 
         "<pre>" \
           "<code>#{code}</code>" \
         "</pre>"
       end
 
-
       def list(content, list_type)
         if list_type == :unordered && content.scan(/<li>/).flatten.length > 15
-          %Q|<p><div id=\"long_list\"><ul>#{content}<ul></div></p>|
+          %(<p><div id=\"long_list\"><ul>#{content}<ul></div></p>)
         elsif list_type == :unordered
-          %Q|<ul>#{content}</ul>|
+          %(<ul>#{content}</ul>)
         elsif list_type == :ordered
-          %Q|<ol>#{content}</ol>|
+          %(<ol>#{content}</ol>)
         else
           content
         end
       end
 
       def header(text, header_level)
-        %Q|<h#{header_level}>#{text}</h#{header_level}><hr>|
+        %(<h#{header_level}>#{text}</h#{header_level}><hr>)
       end
 
       def table(header, body)
-        %Q|<table class="kb_table" cellpadding="5" cellspacing="2" border="1">#{header}#{body}</table><br>|
+        %(<table class="kb_table" cellpadding="5" cellspacing="2" border="1">#{header}#{body}</table><br>)
       end
 
     end
@@ -48,26 +47,26 @@ module Msf
         # Markdown templates
         #
 
-        CSS_BASE_PATH                   = 'markdown.css'
-        HTML_TEMPLATE                   = 'html_template.erb'
-        TEMPLATE_PATH                   = 'default_template.erb'
+        CSS_BASE_PATH                   = 'markdown.css'.freeze
+        HTML_TEMPLATE                   = 'html_template.erb'.freeze
+        TEMPLATE_PATH                   = 'default_template.erb'.freeze
 
         #
         # Demo templates
         #
 
-        REMOTE_EXPLOIT_DEMO_TEMPLATE    = 'remote_exploit_demo_template.erb'
-        BES_DEMO_TEMPLATE               = 'bes_demo_template.erb'
-        HTTPSERVER_DEMO_TEMPLATE        = 'httpserver_demo_template.erb'
-        GENERIC_DEMO_TEMPLATE           = 'generic_demo_template.erb'
-        LOCALEXPLOIT_DEMO_TEMPLATE      = 'localexploit_demo_template.erb'
-        POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
-        AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
-        PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
-        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
+        REMOTE_EXPLOIT_DEMO_TEMPLATE    = 'remote_exploit_demo_template.erb'.freeze
+        BES_DEMO_TEMPLATE               = 'bes_demo_template.erb'.freeze
+        HTTPSERVER_DEMO_TEMPLATE        = 'httpserver_demo_template.erb'.freeze
+        GENERIC_DEMO_TEMPLATE           = 'generic_demo_template.erb'.freeze
+        LOCALEXPLOIT_DEMO_TEMPLATE      = 'localexploit_demo_template.erb'.freeze
+        POST_DEMO_TEMPLATE              = 'post_demo_template.erb'.freeze
+        AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'.freeze
+        PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'.freeze
+        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'.freeze
 
         # Special messages
-        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
+        NO_CVE_MESSAGE = %|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-CVE-is-not-available)|.freeze
 
 
         # Returns the module document in HTML form.
@@ -82,7 +81,7 @@ module Msf
             File.open(path, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()), kb)
+          md_to_html(ERB.new(@md_template).result(binding), kb)
         end
 
 
@@ -101,7 +100,6 @@ module Msf
           }.call
         end
 
-
         # Returns the HTML document.
         #
         # @param md [String] Markdown document.
@@ -109,7 +107,7 @@ module Msf
         # @return [String] HTML document.
         def md_to_html(md, kb)
           extensions = {
-              escape_html: true
+            escape_html: true
           }
 
           render_options = {
@@ -125,16 +123,15 @@ module Msf
             path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', HTML_TEMPLATE))
             File.open(path, 'rb') { |f| html_template = f.read }
             return html_template
-          }.call).result(binding())
+          }.call).result(binding)
         end
-
 
         # Returns the markdown format for pull requests.
         #
         # @param pull_requests [Hash] Pull requests
         # @return [String]
         def normalize_pull_requests(pull_requests)
-          if pull_requests.kind_of?(PullRequestFinder::Exception)
+          if pull_requests.is_a?(PullRequestFinder::Exception)
             error = pull_requests.message
             case error
             when /GITHUB_OAUTH_TOKEN/i
@@ -154,7 +151,6 @@ module Msf
           formatted_pr * "\n"
         end
 
-
         # Returns the markdown format for module datastore options.
         #
         # @param mod_options [Hash] Datastore options
@@ -171,7 +167,6 @@ module Msf
           required_options * "\n"
         end
 
-
         # Returns the markdown format for module description.
         #
         # @param description [String] Module description.
@@ -180,19 +175,17 @@ module Msf
           Rex::Text.wordwrap(Rex::Text.compress(description))
         end
 
-
         # Returns the markdown format for module authors.
         #
         # @param authors [Array, String] Module Authors
         # @return [String]
         def normalize_authors(authors)
-          if authors.kind_of?(Array)
-            authors.collect { |a| "* #{CGI::escapeHTML(a)}" } * "\n"
+          if authors.is_a?(Array)
+            authors.collect { |a| "* #{CGI.escapeHTML(a)}" } * "\n"
           else
             authors
           end
         end
-
 
         # Returns the markdown format for module targets.
         #
@@ -201,7 +194,6 @@ module Msf
         def normalize_targets(targets)
           targets.collect { |c| "* #{c.name}" } * "\n"
         end
-
 
         # Returns the markdown format for module references.
         #
@@ -234,19 +226,17 @@ module Msf
           normalized
         end
 
-
         # Returns the markdown format for module platforms.
         #
         # @param platforms [Array, String] Module platforms.
         # @return [String]
         def normalize_platforms(platforms)
-          if platforms.kind_of?(Array)
+          if platforms.is_a?(Array)
             platforms.collect { |p| "* #{p}" } * "\n"
           else
             platforms
           end
         end
-
 
         # Returns the markdown format for module rank.
         #
@@ -255,7 +245,6 @@ module Msf
         def normalize_rank(rank)
           "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
         end
-
 
         # Returns the markdown format for module side effects.
         #
@@ -266,7 +255,6 @@ module Msf
           md_side_effects.empty? ? 'N/A' : md_side_effects
         end
 
-
         # Returns the markdown format for module reliability.
         #
         # @param reliability [Array<String>] Module reliability.
@@ -276,12 +264,10 @@ module Msf
           md_reliability.empty? ? 'N/A' : md_reliability
         end
 
-
         def normalize_stability(stability)
           md_stability = stability.collect { |s| "* #{s}\n" }.join
           md_stability.empty? ? 'N/A' : md_stability
         end
-
 
         # Returns a parsed demo ERB template.
         #
@@ -292,9 +278,8 @@ module Msf
           data = ''
           path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', path))
           File.open(path, 'rb') { |f| data = f.read }
-          ERB.new(data).result(binding())
+          ERB.new(data).result(binding)
         end
-
 
         # Returns whether the module is a remote exploit or not.
         #
@@ -305,13 +290,12 @@ module Msf
           # It's actually a little tricky to determine this, so we'll try to be as
           # specific as possible. Rather have false negatives than false positives,
           # because the worst case would be using the generic demo template.
-          mod.type == 'exploit' &&                          # Must be an exploit
-          mod.kind_of?(Msf::Exploit::Remote) &&             # Should always have this
-          !mod.kind_of?(Msf::Exploit::FILEFORMAT) &&        # Definitely not a file format
-          !mod.kind_of?(Msf::Exploit::Remote::TcpServer) && # If there is a server mixin, things might get complicated
-          mod.options['DisablePayloadHandler']              # Must allow this option
+          mod.type == 'exploit' && # Must be an exploit
+            mod.is_a?(Msf::Exploit::Remote) &&             # Should always have this
+            !mod.is_a?(Msf::Exploit::FILEFORMAT) &&        # Definitely not a file format
+            !mod.is_a?(Msf::Exploit::Remote::TcpServer) && # If there is a server mixin, things might get complicated
+            mod.options['DisablePayloadHandler'] # Must allow this option
         end
-
 
         # Returns a demo template suitable for the module. Currently supported templates:
         # BrowserExploitServer modules, HttpServer modules, local exploit modules, post
@@ -320,21 +304,21 @@ module Msf
         # @param mod [Msf::Module] Metasploit module.
         # @return [String]
         def normalize_demo_output(mod)
-          if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer) && mod.shortname != 'browser_autopwn2'
+          if mod.is_a?(Msf::Exploit::Remote::BrowserExploitServer) && mod.shortname != 'browser_autopwn2'
             load_demo_template(mod, BES_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Exploit::Remote::HttpServer)
+          elsif mod.is_a?(Msf::Exploit::Remote::HttpServer)
             load_demo_template(mod, HTTPSERVER_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Exploit::Local)
+          elsif mod.is_a?(Msf::Exploit::Local)
             load_demo_template(mod, LOCALEXPLOIT_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Post)
+          elsif mod.is_a?(Msf::Post)
             load_demo_template(mod, POST_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Payload)
+          elsif mod.is_a?(Msf::Payload)
             load_demo_template(mod, PAYLOAD_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Auxiliary::Scanner)
+          elsif mod.is_a?(Msf::Auxiliary::Scanner)
             load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
-          elsif mod.kind_of?(Msf::Evasion)
+          elsif mod.is_a?(Msf::Evasion)
             load_demo_template(mod, EVASION_DEMO_TEMPLATE)
           else
             load_demo_template(mod, GENERIC_DEMO_TEMPLATE)

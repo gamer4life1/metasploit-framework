@@ -7,42 +7,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Ruby on Rails XML Processor YAML Deserialization Scanner',
-      'Description' => %q{
-        This module attempts to identify Ruby on Rails instances vulnerable to
-        an arbitrary object instantiation flaw in the XML request processor.
-      },
-      'Author'      => [
-          'hdm', # author
-          'jjarmoc' # improvements
-          ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['CVE', '2013-0156'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/01/09/serialization-mischief-in-ruby-land-cve-2013-0156']
-        ]
-    ))
+                      'Name' => 'Ruby on Rails XML Processor YAML Deserialization Scanner',
+                      'Description' => '
+                        This module attempts to identify Ruby on Rails instances vulnerable to
+                        an arbitrary object instantiation flaw in the XML request processor.
+                      ',
+                      'Author' => [
+                        'hdm', # author
+                        'jjarmoc' # improvements
+                      ],
+                      'License' => MSF_LICENSE,
+                      'References' =>
+                        [
+                          ['CVE', '2013-0156'],
+                          ['URL', 'https://blog.rapid7.com/2013/01/09/serialization-mischief-in-ruby-land-cve-2013-0156']
+                        ]))
 
     register_options([
-      OptString.new('URIPATH', [true, "The URI to test", "/"]),
-      OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
-    ])
+                       OptString.new('URIPATH', [true, "The URI to test", "/"]),
+                       OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
+                     ])
   end
 
   def send_probe(ptype, pdata)
-    odata = %Q^<?xml version="1.0" encoding="UTF-8"?>\n<probe type="#{ptype}"><![CDATA[\n#{pdata}\n]]></probe>^
+    odata = %(<?xml version="1.0" encoding="UTF-8"?>\n<probe type="#{ptype}"><![CDATA[\n#{pdata}\n]]></probe>)
     res = send_request_cgi({
-      'uri'    => datastore['URIPATH'] || "/",
-      'method' => datastore['HTTP_METHOD'],
-      'ctype'  => 'application/xml',
-      'data'   => odata
-    }, 25)
+                             'uri' => datastore['URIPATH'] || "/",
+                             'method' => datastore['HTTP_METHOD'],
+                             'ctype' => 'application/xml',
+                             'data' => odata
+                           }, 25)
   end
 
-  def run_host(ip)
+  def run_host(_ip)
 
     res1 = send_probe("string", "hello")
 
@@ -73,16 +72,16 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Probe response codes: #{res1.code} / #{res2.code} / #{res3.code}")
 
 
-    if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
+    if (res2.code == res1.code) && (res3.code != res2.code) && (res3.code != 200)
       print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
-      report_vuln({
-        :host	=> rhost,
-        :port	=> rport,
-        :proto  => 'tcp',
-        :name	=> self.name,
-        :info	=> "Module triggered a #{res3.code} reply",
-        :refs   => self.references
-      })
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: name,
+        info: "Module triggered a #{res3.code} reply",
+        refs: references
+      )
     else
       vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
     end

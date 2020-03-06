@@ -9,7 +9,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 444
 
   include Msf::Payload::Single
@@ -18,17 +17,16 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Ruby Command Shell, Reverse TCP SSL',
-      'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
-      'Author'      => 'RageLtMan',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'ruby',
-      'Arch'        => ARCH_RUBY,
-      'Handler'     => Msf::Handler::ReverseTcpSsl,
-      'Session'     => Msf::Sessions::CommandShell,
-      'PayloadType' => 'ruby',
-      'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+                     'Name' => 'Ruby Command Shell, Reverse TCP SSL',
+                     'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
+                     'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'ruby',
+                     'Arch' => ARCH_RUBY,
+                     'Handler' => Msf::Handler::ReverseTcpSsl,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'ruby',
+                     'Payload' => { 'Offsets' => {}, 'Payload' => '' }))
   end
 
   def generate

