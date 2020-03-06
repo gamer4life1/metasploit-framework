@@ -1,5 +1,4 @@
 module Msf::RPC::JSON
-
   # JSON-RPC 2.0 Error Codes
   ## Specification errors:
   PARSE_ERROR = -32700
@@ -22,7 +21,7 @@ module Msf::RPC::JSON
     INTERNAL_ERROR => 'Internal JSON-RPC error',
     # Implementation-defined server-errors:
     APPLICATION_SERVER_ERROR => 'Application server error: %<msg>s'
-  }
+  }.freeze
 
   # Base class for all Msf::RPC::JSON exceptions.
   class RpcError < StandardError
@@ -57,13 +56,13 @@ module Msf::RPC::JSON
 
     def to_h
       hash = {
-          code: @code,
-          message: @message
+        code: @code,
+        message: @message
       }
 
       # process data member
       unless @data.nil?
-        if @data.is_a?(String) || @data.kind_of?(Numeric) || @data.is_a?(Array) || @data.is_a?(Hash)
+        if @data.is_a?(String) || @data.is_a?(Numeric) || @data.is_a?(Array) || @data.is_a?(Hash)
           hash[:data] = @data
         elsif @data.respond_to?(:to_h)
           hash[:data] = @data.to_h
@@ -90,7 +89,7 @@ module Msf::RPC::JSON
 
   class MethodNotFound < RpcError
     def initialize(method, data: nil)
-      super(METHOD_NOT_FOUND, ERROR_MESSAGES[METHOD_NOT_FOUND] % {name: method}, data: data)
+      super(METHOD_NOT_FOUND, format(ERROR_MESSAGES[METHOD_NOT_FOUND], name: method), data: data)
     end
   end
 
@@ -122,15 +121,16 @@ module Msf::RPC::JSON
     # @raise [ArgumentError] Module not found (either the wrong type or name).
     def initialize(code, message, data: nil)
       if code < SERVER_ERROR_MIN || code > SERVER_ERROR_MAX
-        raise ArgumentError.new("invalid code #{code}, must be between #{SERVER_ERROR_MAX} and #{SERVER_ERROR_MIN}")
+        raise ArgumentError, "invalid code #{code}, must be between #{SERVER_ERROR_MAX} and #{SERVER_ERROR_MIN}"
       end
+
       super(code, message, data: data)
     end
   end
 
   class ApplicationServerError < ServerError
     def initialize(message, data: nil)
-      super(APPLICATION_SERVER_ERROR, ERROR_MESSAGES[APPLICATION_SERVER_ERROR] % {msg: message}, data: data)
+      super(APPLICATION_SERVER_ERROR, format(ERROR_MESSAGES[APPLICATION_SERVER_ERROR], msg: message), data: data)
     end
   end
 

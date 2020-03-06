@@ -30,13 +30,13 @@ module Metasploit
         end
       end
 
-      VERSION = "5.0.80"
-      MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
-      PRERELEASE = 'dev'
+      VERSION = "5.0.80".freeze
+      MAJOR, MINOR, PATCH = VERSION.split('.').map(&:to_i)
+      PRERELEASE = 'dev'.freeze
       HASH = get_hash
     end
 
-    VERSION = "#{Version::VERSION}-#{Version::PRERELEASE}#{Version::HASH}"
-    GEM_VERSION = "#{Version::VERSION}"
+    VERSION = "#{Version::VERSION}-#{Version::PRERELEASE}#{Version::HASH}".freeze
+    GEM_VERSION = Version::VERSION.to_s.freeze
   end
 end

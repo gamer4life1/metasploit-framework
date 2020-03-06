@@ -26,7 +26,7 @@ class Metasploit::Framework::ParsedOptions::Base
 
   # msfconsole boots in production mode instead of the normal rails default of
   # development.
-  DEFAULT_ENVIRONMENT = 'production'
+  DEFAULT_ENVIRONMENT = 'production'.freeze
 
   #
   # Attributes
@@ -38,14 +38,14 @@ class Metasploit::Framework::ParsedOptions::Base
   # Instance Methods
   #
 
-  def initialize(arguments=ARGV)
-    begin
-      @positional = option_parser.parse(arguments)
-    rescue OptionParser::InvalidOption
-      puts "ERROR: Invalid command line option provided."
-      puts option_parser
-      exit(1)
-    end
+  def initialize(arguments = ARGV)
+
+    @positional = option_parser.parse(arguments)
+  rescue OptionParser::InvalidOption
+    puts "ERROR: Invalid command line option provided."
+    puts option_parser
+    exit(1)
+
   end
 
   # Translates {#options} to the `application`'s config
@@ -106,15 +106,15 @@ class Metasploit::Framework::ParsedOptions::Base
   #
   # @return [OptionParser]
   def option_parser
-    @option_parser ||= OptionParser.new { |option_parser|
+    @option_parser ||= OptionParser.new do |option_parser|
       option_parser.separator ''
       option_parser.separator 'Common options:'
 
       option_parser.on(
-          '-E',
-          '--environment ENVIRONMENT',
-          %w{development production test},
-          "Set Rails environment, defaults to RAIL_ENV environment variable or 'production'"
+        '-E',
+        '--environment ENVIRONMENT',
+        %w[development production test],
+        "Set Rails environment, defaults to RAIL_ENV environment variable or 'production'"
       ) do |environment|
         options.environment = environment
       end
@@ -123,9 +123,9 @@ class Metasploit::Framework::ParsedOptions::Base
       option_parser.separator 'Database options:'
 
       option_parser.on(
-          '-M',
-          '--migration-path DIRECTORY',
-          'Specify a directory containing additional DB migrations'
+        '-M',
+        '--migration-path DIRECTORY',
+        'Specify a directory containing additional DB migrations'
       ) do |directory|
         options.database.migrations_paths << directory
       end
@@ -135,9 +135,9 @@ class Metasploit::Framework::ParsedOptions::Base
       end
 
       option_parser.on(
-          '-y',
-          '--yaml PATH',
-          'Specify a YAML file containing database settings'
+        '-y',
+        '--yaml PATH',
+        'Specify a YAML file containing database settings'
       ) do |path|
         options.database.config = path
       end
@@ -151,9 +151,9 @@ class Metasploit::Framework::ParsedOptions::Base
       end
 
       option_parser.on(
-          '-v','-V',
-          '--version',
-          'Show version'
+        '-v', '-V',
+        '--version',
+        'Show version'
       ) do
         options.subcommand = :version
       end
@@ -162,16 +162,16 @@ class Metasploit::Framework::ParsedOptions::Base
       option_parser.separator 'Module options:'
 
       option_parser.on(
-          '--defer-module-loads',
-          'Defer module loading unless explicitly asked'
+        '--defer-module-loads',
+        'Defer module loading unless explicitly asked'
       ) do
         options.modules.defer_loads = true
       end
 
       option_parser.on(
-          '-m',
-          '--module-path DIRECTORY',
-          'Load an additional module path'
+        '-m',
+        '--module-path DIRECTORY',
+        'Load an additional module path'
       ) do |directory|
         options.modules.path = directory
       end
@@ -185,6 +185,6 @@ class Metasploit::Framework::ParsedOptions::Base
         puts option_parser
         exit
       end
-    }
+    end
   end
 end

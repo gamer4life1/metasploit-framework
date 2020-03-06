@@ -32,7 +32,7 @@ module Msf
             "-o" => [ true,  "The output file name (otherwise stdout)" ],
             "-O" => [ true,  "Deprecated: alias for the '-o' option" ],
             "-v" => [ false, "Verbose output (display stage in addition to stager)" ],
-            "-h" => [ false, "Show this message" ],
+            "-h" => [ false, "Show this message" ]
           )
 
           #
@@ -49,11 +49,11 @@ module Msf
             handler = framework.modules.create('exploit/multi/handler')
 
             handler_opts = {
-              'Payload'        => mod.refname,
-              'LocalInput'     => driver.input,
-              'LocalOutput'    => driver.output,
-              'ExitOnSession'  => false,
-              'RunAsJob'       => true
+              'Payload' => mod.refname,
+              'LocalInput' => driver.input,
+              'LocalOutput' => driver.output,
+              'ExitOnSession' => false,
+              'RunAsJob' => true
             }
 
             handler.datastore.merge!(mod.datastore)
@@ -154,21 +154,21 @@ module Msf
             # Generate the payload
             begin
               buf = mod.generate_simple(
-                'BadChars'    => badchars,
-                'Encoder'     => encoder_name,
-                'Format'      => format,
+                'BadChars' => badchars,
+                'Encoder' => encoder_name,
+                'Format' => format,
                 'NopSledSize' => sled_size,
-                'PadNops'     => pad_nops,
-                'SecName'     => sec_name,
-                'OptionStr'   => option_str,
+                'PadNops' => pad_nops,
+                'SecName' => sec_name,
+                'OptionStr' => option_str,
                 'ForceEncode' => force,
-                'Template'    => template,
-                'Platform'    => plat,
+                'Template' => template,
+                'Platform' => plat,
                 'KeepTemplateWorking' => keep,
                 'Iterations' => iter,
                 'Verbose' => verbose
               )
-            rescue
+            rescue StandardError
               log_error("Payload generation failed: #{$ERROR_INFO}")
               return false
             end
@@ -189,7 +189,7 @@ module Msf
             fmt = {
               '-b' => [ true                                              ],
               '-E' => [ nil                                               ],
-              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+              '-e' => [ framework.encoders.map { |refname, _mod| refname } ],
               '-h' => [ nil                                               ],
               '-o' => [ true                                              ],
               '-P' => [ true                                              ],

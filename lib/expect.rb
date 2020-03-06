@@ -2,6 +2,7 @@
 # which does not seem to have an issue using this particular method with
 # sockets (pipes and other handles won't work, so don't use it for that).
 # frozen_string_literal: true
+
 $expect_verbose = false
 
 # Expect library adds the IO instance method #expect, which does similar act to
@@ -33,7 +34,7 @@ class IO
   # for the pattern.  If the timeout expires or eof is found, nil is returned
   # or yielded.  However, the buffer in a timeout session is kept for the next
   # expect call.  The default timeout is 9999999 seconds.
-  def expect(pat,timeout=9999999)
+  def expect(pat, timeout = 9999999)
     buf = ''.dup
     case pat
     when String
@@ -45,9 +46,9 @@ class IO
     end
     @unusedBuf ||= ''
     while true
-      if not @unusedBuf.empty?
+      if !@unusedBuf.empty?
         c = @unusedBuf.slice!(0)
-      elsif !IO.select([self],nil,nil,timeout) or eof? then
+      elsif !IO.select([self], nil, nil, timeout) || eof?
         result = nil
         @unusedBuf = buf
         break
@@ -59,12 +60,12 @@ class IO
         STDOUT.print c
         STDOUT.flush
       end
-      if mat=e_pat.match(buf) then
-        result = [buf,*mat.captures]
+      if mat = e_pat.match(buf)
+        result = [buf, *mat.captures]
         break
       end
     end
-    if block_given? then
+    if block_given?
       yield result
     else
       return result

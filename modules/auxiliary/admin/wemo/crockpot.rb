@@ -9,48 +9,47 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Belkin Wemo-Enabled Crock-Pot Remote Control',
-      'Description'   => %q{
-        This module acts as a simple remote control for Belkin Wemo-enabled
-        Crock-Pots by implementing a subset of the functionality provided by the
-        Wemo App.
+                      'Name' => 'Belkin Wemo-Enabled Crock-Pot Remote Control',
+                      'Description' => '
+                        This module acts as a simple remote control for Belkin Wemo-enabled
+                        Crock-Pots by implementing a subset of the functionality provided by the
+                        Wemo App.
 
-        No vulnerabilities are exploited by this Metasploit module in any way.
-      },
-      'Author'        => 'wvu',
-      'References'    => [
-        ['URL', 'https://www.crock-pot.com/wemo-landing-page.html'],
-        ['URL', 'https://www.belkin.com/us/support-article?articleNum=101177'],
-        ['URL', 'http://www.wemo.com/']
-      ],
-      'License'       => MSF_LICENSE,
-      'Actions'       => [
-        ['Cook', 'Description' => 'Cook stuff'],
-        ['Stop', 'Description' => 'Stop cooking']
-      ],
-      'DefaultAction' => 'Cook',
-      'Notes'         => {
-        'Stability'   => [CRASH_SAFE],
-        'SideEffects' => [PHYSICAL_EFFECTS]
-      }
-    ))
+                        No vulnerabilities are exploited by this Metasploit module in any way.
+                      ',
+                      'Author' => 'wvu',
+                      'References' => [
+                        ['URL', 'https://www.crock-pot.com/wemo-landing-page.html'],
+                        ['URL', 'https://www.belkin.com/us/support-article?articleNum=101177'],
+                        ['URL', 'http://www.wemo.com/']
+                      ],
+                      'License' => MSF_LICENSE,
+                      'Actions' => [
+                        ['Cook', 'Description' => 'Cook stuff'],
+                        ['Stop', 'Description' => 'Stop cooking']
+                      ],
+                      'DefaultAction' => 'Cook',
+                      'Notes' => {
+                        'Stability' => [CRASH_SAFE],
+                        'SideEffects' => [PHYSICAL_EFFECTS]
+                      }))
 
     register_options([
-      Opt::RPORT(49152),
-      OptEnum.new('TEMP', [true, 'Temperature', 'Off', modes.keys]),
-      OptInt.new('TIME',  [true, 'Cook time in minutes', 0])
-    ])
+                       Opt::RPORT(49152),
+                       OptEnum.new('TEMP', [true, 'Temperature', 'Off', modes.keys]),
+                       OptInt.new('TIME',  [true, 'Cook time in minutes', 0])
+                     ])
 
     register_advanced_options([
-      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true]),
-      OptBool.new('ForceExploit', [true, 'Override check result', false])
-    ])
+                                OptBool.new('DefangedMode', [true, 'Run in defanged mode', true]),
+                                OptBool.new('ForceExploit', [true, 'Override check result', false])
+                              ])
   end
 
   def check
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    => '/setup.xml'
+      'uri' => '/setup.xml'
     )
 
     if res && res.code == 200 && res.body.include?('urn:Belkin:device:')
@@ -100,13 +99,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_request_cook(temp, time)
     send_request_cgi(
-      'method'       => 'POST',
-      'uri'          => '/upnp/control/basicevent1',
-      'ctype'        => 'text/xml',
-      'headers'      => {
+      'method' => 'POST',
+      'uri' => '/upnp/control/basicevent1',
+      'ctype' => 'text/xml',
+      'headers' => {
         'SOAPACTION' => '"urn:Belkin:service:basicevent:1#SetCrockpotState"'
       },
-      'data'         => generate_soap_xml(temp, time)
+      'data' => generate_soap_xml(temp, time)
     )
   end
 
@@ -126,9 +125,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def modes
     {
-      'Off'  => 0,
+      'Off' => 0,
       'Warm' => 50,
-      'Low'  => 51,
+      'Low' => 51,
       'High' => 52
     }
   end

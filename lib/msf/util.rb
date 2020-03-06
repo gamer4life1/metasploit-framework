@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 ###
 #
 # framework-util
@@ -14,9 +15,8 @@ require 'msf/core'
 require 'rex'
 
 module Msf
-module Util
-
-end
+  module Util
+    end
 end
 
 # Executable generation and encoding

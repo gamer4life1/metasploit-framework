@@ -29,21 +29,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Supermicro Onboard IPMI Static SSL Certificate Scanner',
-      'Description' => %q{
+      'Name' => 'Supermicro Onboard IPMI Static SSL Certificate Scanner',
+      'Description' => '
         This module checks for a static SSL certificate shipped with Supermicro Onboard IPMI
         controllers. An attacker with access to the publicly-available firmware can perform
         man-in-the-middle attacks and offline decryption of communication to the controller.
         This module has been on a Supermicro Onboard IPMI (X9SCL/X9SCM) with firmware
         version SMT_X9_214.
-      },
-      'Author'       =>
+      ',
+      'Author' =>
         [
           'hdm', # Discovery and analysis
           'juan' # Metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
+      'License' => MSF_LICENSE,
+      'References' =>
         [
           [ 'CVE', '2013-3619' ],
           [ 'URL', 'https://blog.rapid7.com/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
@@ -54,13 +54,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-      ])
+      ]
+    )
   end
 
   # Fingerprint a single host
   def run_host(ip)
-    connect(true, {"SSL" => true}) #Force SSL
-    cert  = OpenSSL::X509::Certificate.new(sock.peer_cert)
+    connect(true, "SSL" => true) # Force SSL
+    cert = OpenSSL::X509::Certificate.new(sock.peer_cert)
     disconnect
 
     unless cert
@@ -76,20 +77,20 @@ class MetasploitModule < Msf::Auxiliary
       # Report with the the SSL Private Key hash for the host
       digest = OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
       report_note(
-        :host  => ip,
-        :proto => 'tcp',
-        :port  => rport,
-        :type  => 'supermicro.ipmi.ssl.certificate.pkey_hash',
-        :data  => digest
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'supermicro.ipmi.ssl.certificate.pkey_hash',
+        data: digest
       )
 
-      report_vuln({
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI Static SSL Certificate",
-        :refs  => self.references
-      })
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: "Supermicro Onboard IPMI Static SSL Certificate",
+        refs: references
+      )
     end
   end
 end

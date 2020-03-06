@@ -9,7 +9,6 @@ require 'msf/base/sessions/mettle_config'
 require 'msf/base/sessions/meterpreter_x64_osx'
 
 module MetasploitModule
-
   CachedSize = 818064
 
   include Msf::Payload::Single
@@ -20,18 +19,18 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'OSX Meterpreter, Reverse HTTPS Inline',
-        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
-        'Author'        => [
+        'Name' => 'OSX Meterpreter, Reverse HTTPS Inline',
+        'Description' => 'Run the Meterpreter / Mettle server payload (stageless)',
+        'Author' => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
           'Brent Cook <brent_cook[at]rapid7.com>',
           'timwr'
         ],
-        'Platform'      => 'osx',
-        'Arch'          => ARCH_X64,
-        'License'       => MSF_LICENSE,
-        'Handler'       => Msf::Handler::ReverseHttps,
-        'Session'       => Msf::Sessions::Meterpreter_x64_OSX
+        'Platform' => 'osx',
+        'Arch' => ARCH_X64,
+        'License' => MSF_LICENSE,
+        'Handler' => Msf::Handler::ReverseHttps,
+        'Session' => Msf::Sessions::Meterpreter_x64_OSX
       )
     )
   end

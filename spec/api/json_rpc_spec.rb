@@ -17,7 +17,7 @@ RSpec.describe "Metasploit's json-rpc" do
   let(:api_url) { '/api/v1/json-rpc' }
   let(:framework) { app.settings.framework }
   let(:module_name) { 'scanner/ssl/openssl_heartbleed' }
-  let(:a_valid_result_uuid) { { 'result' => hash_including({ 'uuid' => match(/\w+/) }) } }
+  let(:a_valid_result_uuid) { { 'result' => hash_including('uuid' => match(/\w+/)) } }
   let(:app) do
     # Lazy load to ensure that the json rpc app doesn't create an instance of framework out of band
     require 'msf/core/web_services/json_rpc_app'
@@ -55,11 +55,11 @@ RSpec.describe "Metasploit's json-rpc" do
   end
 
   def expect_completed_status(rpc_response)
-    expect(rpc_response).to include({ 'result' => hash_including({ 'status' => 'completed' }) })
+    expect(rpc_response).to include('result' => hash_including('status' => 'completed'))
   end
 
   def expect_error_status(rpc_response)
-    expect(rpc_response).to include({ 'result' => hash_including({ 'status' => 'errored' }) })
+    expect(rpc_response).to include('result' => hash_including('status' => 'errored'))
   end
 
   def mock_rack_env(mock_rack_env_value)

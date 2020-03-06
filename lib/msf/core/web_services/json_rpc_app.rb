@@ -31,7 +31,7 @@ module Msf::WebServices
       # Disables Sinatra HTML Error Responses
       set :show_exceptions, false
 
-      set :sessions, {key: 'msf-ws.session', expire_after: 300}
+      set :sessions, key: 'msf-ws.session', expire_after: 300
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
       set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)
     end
@@ -88,7 +88,7 @@ module Msf::WebServices
     def db_initialized(db)
       db.check
       true
-    rescue
+    rescue StandardError
       false
     end
 
