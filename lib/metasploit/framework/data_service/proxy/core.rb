@@ -1,6 +1,4 @@
 require 'open3'
-require 'rex/ui'
-require 'rex/logging'
 require 'metasploit/framework/data_service/proxy/data_proxy_auto_loader'
 
 #
@@ -167,8 +165,7 @@ class DataProxy
   end
 
   def log_error(exception, ui_message)
-    elog "#{ui_message}: #{exception.message}"
-    exception.backtrace.each { |line| elog "#{line}" }
+    elog(ui_message, error: exception)
     # TODO: We should try to surface the original exception, instead of just a generic one.
     # This should not display the full backtrace, only the message.
     raise exception

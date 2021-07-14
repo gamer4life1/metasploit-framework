@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/auxiliary/cisco'
 
 RSpec.describe Msf::Auxiliary::Cisco do
   class DummyCiscoClass
@@ -109,9 +108,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Enable Password: 1511021F0725')
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "1511021F0725", "enable_password.txt", "Cisco IOS Enable Password"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
@@ -156,9 +152,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Decrypted Enable Password: cisco')
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "cisco", "enable_password.txt", "Cisco IOS Enable Password"
-        )
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -253,9 +246,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     it 'password 7' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Decrypted VTY Password: cisco')
       expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
-      expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.config", "text/plain", "127.0.0.1", "password 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
-      )
       expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
           address: "127.0.0.1",
@@ -276,9 +266,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     it 'password|secret 5' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted VTY Password: 1511021F0725')
       expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
-      expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.vty_password", "text/plain", "127.0.0.1", "1511021F0725", "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)"
-      )
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -352,9 +339,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "encryption key 777 size 8bit 8 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.wireless_wep", "text/plain", "127.0.0.1", "1511021F0725", "wireless_wep.txt", "Cisco IOS Wireless WEP Key"
-      )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'encryption key 777 size 8bit 8 1511021F0725')
     end
 
@@ -364,9 +348,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.wireless_wpapsk", "text/plain", "127.0.0.1", "1511021F0725", "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -391,9 +372,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.wireless_wpapsk_hash", "text/plain", "127.0.0.1", "1511021F0725", "wireless_wpapsk_hash.txt", "Cisco IOS Wireless WPA-PSK Password Hash (MD5)"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -417,9 +395,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.wireless_wpapsk", "text/plain", "127.0.0.1", "cisco", "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Decrypted Password"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -446,9 +421,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1",  "crypto isakmp key 1511021F0725 address someaddress", "config.txt", "Cisco IOS Configuration"
-      )
-      expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.vpn_ipsec_key", "text/plain", "127.0.0.1", "1511021F0725", "vpn_ipsec_key.txt", "Cisco VPN IPSEC Key"
       )
       expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
@@ -480,9 +452,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 GRE Tunnel Key 1511021F0725 for Interface Tunnel ")
       expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.gre_tunnel_key", "text/plain", "127.0.0.1", "tunnel_1511021F0725", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key"
-      )
-      expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1",  "tunnel key 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
       expect(aux_cisco).to receive(:create_credential_and_login).with(
@@ -508,9 +477,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "ip nhrp authentication 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.nhrp_tunnel_key", "text/plain", "127.0.0.1", "tunnel_1511021F0725", "nhrp_tunnel_key.txt", "Cisco NHRP Authentication Key"
-      )
       expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
           address: "127.0.0.1",
@@ -534,9 +500,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password", "text/plain", "127.0.0.1", "someusername_level0:1511021F0725", "username_password.txt", "Cisco IOS Username and Password"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -562,10 +525,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password_hash", "text/plain", "127.0.0.1", "someusername_level0:1511021F0725",
-          "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -593,9 +552,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password", "text/plain", "127.0.0.1", "someusername_level0:cisco", "username_password.txt", "Cisco IOS Username and Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -622,10 +578,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password", "text/plain", "127.0.0.1", "someusername:1511021F0725", "username_password.txt",
-          "Cisco IOS Username and Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -649,10 +601,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password_hash", "text/plain", "127.0.0.1", "someusername:1511021F0725", "username_password_hash.txt",
-          "Cisco IOS Username and Password Hash (MD5)"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -680,10 +628,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.username_password", "text/plain", "127.0.0.1", "someusername:cisco", "username_password.txt",
-          "Cisco IOS Username and Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -710,10 +654,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_username_password", "text/plain", "127.0.0.1", "someusername:1511021F0725", "ppp_username_password.txt",
-          "Cisco IOS PPP Username and Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -737,10 +677,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_username_password_hash", "text/plain", "127.0.0.1", "someusername:1511021F0725", "ppp_username_password_hash.txt",
-          "Cisco IOS PPP Username and Password Hash (MD5)"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -768,10 +704,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_username_password", "text/plain", "127.0.0.1", "someusername:cisco", "ppp_username_password.txt",
-          "Cisco IOS PPP Username and Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -798,9 +730,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_password", "text/plain", "127.0.0.1", "1511021F0725", "ppp_password.txt", "Cisco IOS PPP Password"
-        )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -823,10 +752,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_password_hash", "text/plain", "127.0.0.1", "1511021F0725", "ppp_password_hash.txt",
-          "Cisco IOS PPP Password Hash (MD5)"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
@@ -852,9 +777,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
-        )
-        expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.ppp_password", "text/plain", "127.0.0.1", "cisco", "ppp_password.txt", "Cisco IOS PPP Password"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {

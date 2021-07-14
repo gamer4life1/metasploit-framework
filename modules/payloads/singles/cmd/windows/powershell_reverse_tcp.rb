@@ -2,15 +2,11 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/powershell'
-require 'msf/core/payload/windows/powershell'
-require 'msf/core/handler/reverse_tcp_ssl'
+require 'rex/powershell'
 
 module MetasploitModule
 
-  CachedSize = 1561
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Rex::Powershell::Command

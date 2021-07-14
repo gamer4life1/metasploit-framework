@@ -1,5 +1,4 @@
 require 'rex/socket/ssl'
-require 'faker'
 
 module Msf
 module Ssl

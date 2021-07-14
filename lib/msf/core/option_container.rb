@@ -213,8 +213,8 @@ module Msf
       }
 
       if (errors.empty? == false)
-        raise OptionValidateError.new(errors),
-          "One or more options failed to validate", caller
+        raise Msf::OptionValidateError.new(errors),
+          "One or more options failed to validate: #{errors.join(', ')}.", caller
       end
 
       return true

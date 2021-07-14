@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/text/color'
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -41,11 +40,12 @@ module Shell
   #
   # Initializes a shell that has a prompt and can be interacted with.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
     self.stop_count     = 0
+    self.name = name
 
     # Initialize the prompt
     self.cont_prompt = ' > '
@@ -67,12 +67,6 @@ module Shell
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
       self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
-      if Readline::HISTORY.length == 0 and histfile and File.exist?(histfile)
-        File.readlines(histfile).each { |e|
-          Readline::HISTORY << e.chomp
-        }
-        self.hist_last_saved = Readline::HISTORY.length
-      end
       self.input.output = self.output
     end
   end
@@ -128,6 +122,16 @@ module Shell
   # Run the command processing loop.
   #
   def run(&block)
+    begin
+      require 'pry'
+      # pry history will not be loaded by default when pry is used as a breakpoint like `binding.pry`
+      Pry.config.history_load = false
+    rescue LoadError
+      # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
+    end
+
+    HistoryManager.push_context(history_file: histfile, name: name)
+    self.hist_last_saved = Readline::HISTORY.length
 
     begin
 
@@ -145,23 +149,17 @@ module Shell
         if input.eof? || line == nil
           self.stop_count += 1
           next if self.stop_count > 1
-          run_single("quit")
+          run_single('quit')
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
         elsif block
           break if block.call(line)
 
-        # Otherwise, call what should be an overriden instance method to
+        # Otherwise, call what should be an overridden instance method to
         # process the line.
         else
-          ret = run_single(line)
-          # don't bother saving lines that couldn't be found as a
-          # command, create the file if it doesn't exist, don't save dupes
-          if ret && self.histfile && line != @last_line
-            File.open(self.histfile, "a+") { |f| f.puts(line) }
-            @last_line = line
-          end
+          run_single(line)
           self.stop_count = 0
         end
 
@@ -170,6 +168,10 @@ module Shell
     rescue ::Interrupt
       output.print("Interrupt: use the 'exit' command to quit\n")
       retry
+    ensure
+      HistoryManager.pop_context
+      HistoryManager.flush
+      self.hist_last_saved = Readline::HISTORY.length
     end
   end
 
@@ -290,8 +292,9 @@ module Shell
   attr_accessor :on_command_proc
   attr_accessor :on_print_proc
   attr_accessor :framework
+  attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 
-protected
+  protected
 
   def supports_color?
     true
@@ -413,9 +416,12 @@ protected
 
       skip_next = true
       if spec == 'T'
-        # This %T is the strftime shorthand for %H:%M:%S
-        strftime_format = framework.datastore['PromptTimeFormat'] || '%T'
-        formatted << Time.now.strftime(strftime_format).to_s
+        if framework.datastore['PromptTimeFormat']
+          strftime_format = framework.datastore['PromptTimeFormat']
+        else
+          strftime_format = ::Time::DATE_FORMATS[:db].to_s
+        end
+        formatted << ::Time.now.strftime(strftime_format).to_s
       elsif spec == 'W' && framework.db.active
         formatted << framework.db.workspace.name
       elsif session
@@ -481,26 +487,14 @@ protected
   attr_accessor :stop_flag, :cont_prompt # :nodoc:
   attr_accessor :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
-  attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
   attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
-
+  attr_accessor :name
 private
 
   attr_writer   :cont_flag # :nodoc:
 
 end
 
-###
-#
-# Pseudo-shell interface that simply includes the Shell mixin.
-#
-###
-class PseudoShell
-  include Shell
-end
-
-
 end end end
-

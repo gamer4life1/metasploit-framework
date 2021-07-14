@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/windows/accounts'
-require 'msf/core/post/windows/registry'
-
 module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
@@ -25,6 +22,13 @@ module Msf::Post::Windows::Priv
   UAC_PROMPT_CREDS = 3
   UAC_PROMPT_CONSENT = 4
   UAC_DEFAULT = 5
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_config_* stdapi_sys_process_* stdapi_registry_* } } }
+    ))
+  end
 
   #
   # Returns true if user is admin and false if not.
@@ -78,7 +82,7 @@ module Msf::Post::Windows::Priv
     rescue Rex::Post::Meterpreter::RequestError => e
       # It could raise an exception even when the token is successfully stolen,
       # so we will just log the exception and move on.
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
 
     true
@@ -403,9 +407,9 @@ module Msf::Post::Windows::Priv
         j = key[j..j+7].length
       end
     end
-    dec_data_len = decrypted_data[0].ord
+    dec_data_len = decrypted_data[0,4].unpack('<L').first
 
-    return decrypted_data[8..8+dec_data_len]
+    return decrypted_data[8, dec_data_len]
 
   end
 

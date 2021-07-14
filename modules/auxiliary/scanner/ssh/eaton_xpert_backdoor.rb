@@ -4,6 +4,7 @@
 ###
 
 # XXX: This shouldn't be necessary but is now
+require 'net/ssh'
 require 'net/ssh/command_stream'
 
 class MetasploitModule < Msf::Auxiliary
@@ -30,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://www.eaton.com/content/dam/eaton/company/news-insights/cybersecurity/security-bulletins/PXM-Advisory.pdf'],
         ['URL', 'https://www.ctrlu.net/vuln/0006.html']
       ],
-      'DisclosureDate' => 'Jul 18 2018',
+      'DisclosureDate' => '2018-07-18',
       'License'        => MSF_LICENSE
     ))
 

@@ -3,15 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/password_cracker'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
   include Msf::Exploit::Deprecated
-  moved_from 'auxiliary/analyze/jtr_mssql'
-  moved_from 'auxiliary/analyze/jtr_mysql'
-  moved_from 'auxiliary/analyze/jtr_oracle'
-  moved_from 'auxiliary/analyze/jtr_postgres'
+  moved_from 'auxiliary/analyze/jtr_mssql_fast'
+  moved_from 'auxiliary/analyze/jtr_mysql_fast'
+  moved_from 'auxiliary/analyze/jtr_oracle_fast'
+  moved_from 'auxiliary/analyze/jtr_postgres_fast'
 
   def initialize
     super(
@@ -32,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
       'Actions'         =>
         [
-          ['john', {'Description' => 'Use John the Ripper'}],
-          ['hashcat', {'Description' => 'Use Hashcat'}],
+          ['john', 'Description' => 'Use John the Ripper'],
+          ['hashcat', 'Description' => 'Use Hashcat'],
         ],
       'DefaultAction' => 'john',
     )
@@ -209,14 +208,7 @@ class MetasploitModule < Msf::Auxiliary
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
 
-    cracker = new_password_cracker
-    cracker.cracker = action.name
-
-    cracker_version = cracker.cracker_version
-    if action.name == 'john' and not cracker_version.include?'jumbo'
-      fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
-    end
-    print_good("#{action.name} Version Detected: #{cracker_version}")
+    cracker = new_password_cracker(action.name)
 
     # create the hash file first, so if there aren't any hashes we can quit early
     # hashes is a reference list used by hashcat only

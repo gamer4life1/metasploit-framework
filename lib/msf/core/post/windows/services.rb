@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/registry'
 
 module Msf
 class Post
@@ -41,6 +40,13 @@ module Services
   include ::Msf::Post::Windows::Error
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ extapi_service_* stdapi_railgun_api* } } }
+    ))
+  end
 
   def advapi32
     session.railgun.advapi32
@@ -247,6 +253,29 @@ module Services
     service[:interactive] = nil
 
     return service
+  end
+
+  #
+  # Check if the specified Windows service exists.
+  #
+  # @param name [String] The target service's name (not to be confused
+  #   with Display Name). Case sensitive.
+  #
+  # @return [Boolean]
+  #
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_error('Unable to enumerate Windows services')
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
   end
 
   #

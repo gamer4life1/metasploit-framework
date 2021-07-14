@@ -12,21 +12,14 @@ module CommandDispatcher
 class Auxiliary
 
   include Msf::Ui::Console::ModuleCommandDispatcher
-
-
-  @@auxiliary_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                                        ],
-    "-j" => [ false, "Run in the context of a job."                                       ],
-    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
-    "-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ],
-    "-q" => [ false, "Run the module in quiet mode with no output"                         ]
-  )
+  include Msf::Ui::Console::ModuleActionCommands
+  include Msf::Ui::Console::ModuleOptionTabCompletion
 
   #
   # Returns the hash of commands specific to auxiliary modules.
   #
   def commands
-    super.update({
+    super.merge({
       "run"      => "Launches the auxiliary module",
       "rcheck"   => "Reloads the module and checks if the target is vulnerable",
       "rerun"    => "Reloads and launches the auxiliary module",
@@ -38,20 +31,6 @@ class Auxiliary
   end
 
   #
-  # Allow modules to define their own commands
-  #
-  def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s, true) )
-
-      # Initialize user interaction
-      mod.init_ui(driver.input, driver.output)
-
-      return mod.send(meth.to_s, *args)
-    end
-    return
-  end
-
-  #
   #
   # Returns the command dispatcher name.
   #
@@ -60,62 +39,29 @@ class Auxiliary
   end
 
   #
-  # Tab completion for the run command
-  #
-  def cmd_run_tabs(str, words)
-    return [] if words.length > 1
-    @@auxiliary_opts.fmt.keys
-  end
-
-  #
   # Executes an auxiliary module
   #
-  def cmd_run(*args)
-    opts    = []
-    action  = mod.datastore['ACTION']
-    jobify  = false
-    quiet   = false
-
-    @@auxiliary_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-j'
-        jobify = true
-      when '-o'
-        opts.push(val)
-      when '-a'
-        action = val
-      when '-q'
-        quiet  = true
-      when '-h'
-        cmd_run_help
-        return false
-      else
-        if val[0] != '-' && val.match?('=')
-          opts.push(val)
-        else
-          cmd_run_help
-          return false
-        end
-      end
-    end
+  def cmd_run(*args, action: nil)
+    return false unless (args = parse_run_opts(args, action: action))
+    jobify = args[:jobify]
 
     # Always run passive modules in the background
     if mod.is_a?(Msf::Module::HasActions) &&
-        (mod.passive || mod.passive_action?(action || mod.default_action))
+        (mod.passive || mod.passive_action?(args[:action] || mod.default_action))
       jobify = true
     end
 
-    rhosts = datastore['RHOSTS']
+    rhosts = mod.datastore['RHOSTS']
     begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
         mod.run_simple(
-          'Action'         => action,
-          'OptionStr'      => opts.join(','),
+          'Action'         => args[:action],
+          'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
           'LocalInput'     => driver.input,
           'LocalOutput'    => driver.output,
           'RunAsJob'       => jobify,
-          'Quiet'          => quiet
+          'Quiet'          => args[:quiet]
         )
       # For multi target attempts with non-scanner modules.
       else
@@ -126,17 +72,18 @@ class Auxiliary
         end
 
         rhosts_range = Rex::Socket::RangeWalker.new(rhosts_opt.normalize(rhosts))
-        rhosts_range.each do |rhost|
+        rhosts_range.each_host do |rhost|
           nmod = mod.replicant
-          nmod.datastore['RHOST'] = rhost
-          print_status("Running module against #{rhost}")
+          nmod.datastore['RHOST'] = rhost[:address]
+          nmod.datastore['VHOST'] = rhost[:hostname] if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
+          print_status("Running module against #{rhost[:address]}")
           nmod.run_simple(
-            'Action'         => action,
-            'OptionStr'      => opts.join(','),
+            'Action'         => args[:action],
+            'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
             'LocalInput'     => driver.input,
             'LocalOutput'    => driver.output,
             'RunAsJob'       => false,
-            'Quiet'          => quiet
+            'Quiet'          => args[:quiet]
           )
         end
       end
@@ -176,7 +123,7 @@ class Auxiliary
     print_line "Usage: run [options]"
     print_line
     print_line "Launches an auxiliary module."
-    print @@auxiliary_opts.usage
+    print @@module_opts.usage
   end
 
   alias cmd_exploit_help cmd_run_help

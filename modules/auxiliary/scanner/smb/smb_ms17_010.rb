@@ -76,6 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     checkcode = Exploit::CheckCode::Unknown
+    details = {}
 
     begin
       ipc_share = "\\\\#{ip}\\IPC$"
@@ -86,21 +87,23 @@ class MetasploitModule < Msf::Auxiliary
       status = do_smb_ms17_010_probe(tree_id)
       vprint_status("Received #{status} with FID = 0")
 
-      if status == "STATUS_INSUFF_SERVER_RESOURCES"
-        os = simple.client.peer_native_os
-
+      os = simple.client.peer_native_os.dup
+      details[:os] = os.dup
+      if status == 'STATUS_INSUFF_SERVER_RESOURCES'
         if datastore['CHECK_ARCH']
           case dcerpc_getarch
           when ARCH_X86
             os << ' x86 (32-bit)'
+            details[:arch] = ARCH_X86
           when ARCH_X64
             os << ' x64 (64-bit)'
+            details[:arch] = ARCH_X64
           end
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
 
-        checkcode = Exploit::CheckCode::Vulnerable
+        checkcode = Exploit::CheckCode::Vulnerable(details: details)
 
         report_vuln(
           host: ip,
@@ -129,19 +132,18 @@ class MetasploitModule < Msf::Auxiliary
 
         if datastore['CHECK_PIPE']
           pipe_name, _ = check_named_pipes(return_first: true)
+          if pipe_name
+            print_good("Named pipe found: #{pipe_name}")
 
-          return unless pipe_name
-
-          print_good("Named pipe found: #{pipe_name}")
-
-          report_note(
-            host:  ip,
-            port:  rport,
-            proto: 'tcp',
-            sname: 'smb',
-            type:  'MS17-010 Named Pipe',
-            data:  pipe_name
-          )
+            report_note(
+              host:  ip,
+              port:  rport,
+              proto: 'tcp',
+              sname: 'smb',
+              type:  'MS17-010 Named Pipe',
+              data:  pipe_name
+            )
+          end
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
@@ -150,13 +152,23 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unable to properly detect if host is vulnerable.")
       end
 
+      unless (fp_match = Recog::Nizer.match('smb.native_os', simple.client.peer_native_os)).nil?
+        report_host(
+          host: rhost,
+          arch: details[:arch],
+          os_family: 'Windows',
+          os_flavor: fp_match['os.edition'],
+          os_name: fp_match['os.product']
+        )
+      end
+
     rescue ::Interrupt
       print_status("Exiting on interrupt.")
       raise $!
     rescue ::Rex::Proto::SMB::Exceptions::LoginError
       print_error("An SMB Login Error occurred while connecting to the IPC$ tree.")
     rescue ::Exception => e
-      vprint_error("#{e.class}: #{e.message}")
+      print_error("#{e.class}: #{e.message}")
     ensure
       disconnect
     end
@@ -165,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_smb_setup_tree(ipc_share)
-    connect
+    connect(versions: [1])
 
     # logon as user \
     simple.login(datastore['SMBName'], datastore['SMBUser'], datastore['SMBPass'], datastore['SMBDomain'])

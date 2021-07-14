@@ -40,7 +40,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     # unnecessary requests.
     return @separator if @separator
 
-    request = Packet.create_request('stdapi_fs_separator')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_SEPARATOR)
 
     # Fall back to the old behavior of always assuming windows.  This
     # allows meterpreter executables built before the addition of this
@@ -79,17 +79,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     files = ::Array.new
 
-    request = Packet.create_request( 'stdapi_fs_search' )
+    request = Packet.create_request( COMMAND_ID_STDAPI_FS_SEARCH )
 
     root = client.unicode_filter_decode(root) if root
-    root = root.chomp( self.separator ) if root
+    root = root.chomp( self.separator ) if root && !root.eql?('/')
 
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
     request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
 
-    # we set the response timeout to -1 to wait indefinatly as a
-    # search could take an indeterminate ammount of time to complete.
+    # we set the response timeout to -1 to wait indefinitely as a
+    # search could take an indeterminate amount of time to complete.
     response = client.send_request( request, timeout )
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
@@ -135,7 +135,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # caution.
   #
   def File.expand_path(path)
-    request = Packet.create_request('stdapi_fs_file_expand_path')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
 
@@ -149,7 +149,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Calculates the MD5 (16-bytes raw) of a remote file
   #
   def File.md5(path)
-    request = Packet.create_request('stdapi_fs_md5')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_MD5)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
 
@@ -165,7 +165,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Calculates the SHA1 (20-bytes raw) of a remote file
   #
   def File.sha1(path)
-    request = Packet.create_request('stdapi_fs_sha1')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_SHA1)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( path ))
 
@@ -196,7 +196,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Performs a delete on the remote file +name+
   #
   def File.rm(name)
-    request = Packet.create_request('stdapi_fs_delete_file')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_DELETE_FILE)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( name ))
 
@@ -214,7 +214,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Performs a rename from oldname to newname
   #
   def File.mv(oldname, newname)
-    request = Packet.create_request('stdapi_fs_file_move')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_MOVE)
 
     request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( newname ))
@@ -233,7 +233,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Performs a copy from oldname to newname
   #
   def File.cp(oldname, newname)
-    request = Packet.create_request('stdapi_fs_file_copy')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_FILE_COPY)
 
     request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( newname ))
@@ -251,7 +251,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # Performs a chmod on the remote file
   #
   def File.chmod(name, mode)
-    request = Packet.create_request('stdapi_fs_chmod')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_CHMOD)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( name ))
     request.add_tlv(TLV_TYPE_FILE_MODE_T, mode)
@@ -325,6 +325,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.download(dest, src_files, opts = {}, &stat)
     timestamp = opts["timestamp"]
     [*src_files].each { |src|
+      src.force_encoding('UTF-8')
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator

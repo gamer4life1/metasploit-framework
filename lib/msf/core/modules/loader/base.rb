@@ -2,9 +2,7 @@
 #
 # Project
 #
-require 'msf/core/modules/loader'
-require 'msf/core/modules/error'
-
+require 'msf/core/constants'
 # Responsible for loading modules for {Msf::ModuleManager}.
 #
 # @abstract Subclass and override {#each_module_reference_name}, {#loadable?}, {#module_path}, and
@@ -24,6 +22,7 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_POST => 'post',
     Msf::MODULE_EVASION => 'evasion'
   }
+  TYPE_BY_DIRECTORY = DIRECTORY_BY_TYPE.invert
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
@@ -304,7 +303,7 @@ class Msf::Modules::Loader::Base
           reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
         end
       else
-        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.", 'core')
+        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.")
 
         # Return the old module instance to avoid an strace trace
         return original_metasploit_class_or_instance
@@ -414,17 +413,7 @@ class Msf::Modules::Loader::Base
     # backtraces should not appear.
     module_manager.module_load_error_by_path[module_path] = "#{error.class} #{error}"
 
-    log_lines = []
-    log_lines << "#{module_path} failed to load due to the following error:"
-    log_lines << error.class.to_s
-    log_lines << error.to_s
-    if error.backtrace
-      log_lines << "Call stack:"
-      log_lines += error.backtrace
-    end
-
-    log_message = log_lines.join(' ')
-    elog(log_message)
+    elog("#{module_path} failed to load", error: error)
   end
 
   # Records the load warning to {Msf::ModuleManager::Loading#module_load_warnings} and the log.
@@ -469,15 +458,17 @@ class Msf::Modules::Loader::Base
   #                   the path is not hidden (starts with '.')
   # @return [false] otherwise
   def module_path?(path)
-    !(path.starts_with?(".") ||
-      !path.ends_with?(MODULE_EXTENSION) ||
-      path.match?(UNIT_TEST_REGEX))
+    path.ends_with?(MODULE_EXTENSION) &&
+      File.file?(path) &&
+      !path.starts_with?(".") &&
+      !path.match?(UNIT_TEST_REGEX) &&
+      !script_path?(path)
   end
 
   # Tries to determine if a file might be executable,
   def script_path?(path)
-    File.executable?(path) &&
-      !File.directory?(path) &&
+    File.file?(path) &&
+      File.executable?(path) &&
       ['#!', '//'].include?(File.read(path, 2))
   end
 

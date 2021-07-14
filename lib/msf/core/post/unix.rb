@@ -1,9 +1,14 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/linux/system'
 
 module Msf::Post::Unix
 
+  #
+  # @return [Boolean] true if session is running as uid=0
+  #
+  def is_root?
+    (cmd_exec('id -u').to_s.gsub(/[^\d]/, '') == '0')
+  end
 
   #
   # Returns an array of hashes each representing a user
@@ -94,8 +99,8 @@ module Msf::Post::Unix
   #
   def whoami
     shellpid = get_session_pid()
-    statuspid = pid_uid(shellpid)
-    statuspid.each_line do |line|
+    status = read_file("/proc/#{shellpid}/status") 
+    status.each_line do |line|
       split = line.split(":")
       if split[0] == "Uid"
         regex = /.*\s(.*)\s/

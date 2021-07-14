@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-require 'msf/base/simple'
-require 'msf/base/simple/framework/module_paths'
-
+require 'msf/core/constants'
 module Msf
 module Simple
 
@@ -68,7 +66,7 @@ module Framework
   #
   # @param opts [Hash{String => Object}]
   # @option opts (see simplify)
-  # @return [Msf::Simple::Frameworkt s]
+  # @return [Msf::Simple::Framework]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)
@@ -84,6 +82,7 @@ module Framework
   # @option opts [#call] 'OnCreateProc' Proc to call after {#init_simplified}.  Will be passed `framework`.
   # @option opts [String] 'ConfigDirectory'  Directory where configuration is saved.  The `~/.msf4` directory.
   # @option opts [Boolean] 'DisableLogging' (false) `true` to disable `Msf::Logging.init`
+  # @option opts [String] 'Logger' (Flatfile) Will default to logging to `~/.msf4`.
   # @option opts [Boolean] 'DeferModuleLoads' (false) `true` to disable `framework.init_module_paths`.
   # @return [Msf::Simple::Framework] `framework`
   def self.simplify(framework, opts)
@@ -109,7 +108,10 @@ module Framework
 
     # Initialize configuration and logging
     Msf::Config.init
-    Msf::Logging.init unless opts['DisableLogging']
+    unless opts['DisableLogging']
+      log_sink_name = opts['Logger']
+      Msf::Logging.init(log_sink_name)
+    end
 
     # Load the configuration
     framework.load_config
@@ -150,9 +152,6 @@ module Framework
   #
   def init_simplified
     self.stats = Statistics.new(self)
-    self.ready = Set.new
-    self.running = Set.new
-    self.results = Hash.new
   end
 
   #
@@ -174,6 +173,7 @@ module Framework
   #
   attr_reader :stats
 
+
   #
   # Boolean indicating whether the cache is initialized yet
   #
@@ -183,31 +183,12 @@ module Framework
   # Thread of the running rebuild operation
   #
   attr_reader :cache_thread
-
-  #
-  # {Set<String>} of module run/check UUIDs waiting to be kicked off
-  #
-  attr_reader :ready
-
-  #
-  # {Hash<String,Hash>} of module run/check results, by UUID. Successful runs
-  # look like `{result: check_code}` and errors like `{error: message}`.
-  #
-  attr_reader :results
-
-  #
-  # {Set<String>} of module run/check UUIDs currently in progress
-  #
-  attr_reader :running
   attr_writer :cache_initialized # :nodoc:
   attr_writer :cache_thread # :nodoc:
 
 
 protected
 
-  attr_writer :ready # :nodoc:
-  attr_writer :results # :nodoc:
-  attr_writer :running # :nodoc:
   attr_writer :stats # :nodoc:
 
 end

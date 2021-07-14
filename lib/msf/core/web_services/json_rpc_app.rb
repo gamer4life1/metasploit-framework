@@ -2,15 +2,10 @@ require 'securerandom'
 require 'sinatra/base'
 require 'swagger/blocks'
 require 'warden'
-require 'msf/core/rpc'
 require 'msf/core/web_services/authentication'
-require 'msf/core/web_services/framework_extension'
-require 'msf/core/web_services/servlet_helper'
-require 'msf/core/web_services/servlet/auth_servlet'
-require 'msf/core/web_services/servlet/json_rpc_servlet'
-
 module Msf::WebServices
   class JsonRpcApp < Sinatra::Base
+
     helpers ServletHelper
     helpers Msf::RPC::JSON::DispatcherHelper
 
@@ -19,10 +14,17 @@ module Msf::WebServices
 
     # Servlet registration
     register AuthServlet
+    register HealthServlet
     register JsonRpcServlet
+
+    # Custom error handling
+    register JsonRpcExceptionHandling::SinatraExtension
 
     configure do
       set :dispatchers, {}
+
+      # Disables Sinatra HTML Error Responses
+      set :show_exceptions, false
 
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
@@ -31,15 +33,15 @@ module Msf::WebServices
 
     before do
       db = get_db
+      @@auth_initialized = false
       if db_initialized(db)
         # store DBManager in request environment so that it is available to Warden
         request.env['msf.db_manager'] = db
         @@auth_initialized ||= get_db.users({}).count > 0
-      elsif !settings.api_token.nil?
+      end
+      if !settings.api_token.nil?
         @@auth_initialized = true
         request.env['msf.api_token'] = settings.api_token
-      else
-        @@auth_initialized = false
       end
 
       # store flag indicating whether authentication is initialized in the request environment
@@ -85,5 +87,11 @@ module Msf::WebServices
       false
     end
 
+    def self.setup_default_middleware(builder)
+      super
+      # Insertion at pos 1 needed to immediately follow Sinatra::ExtendedBase
+      # proc block identical to one used in 'use' method lib/rack/builder:86
+      builder.instance_variable_get(:@use).insert(1, proc { |app| JsonRpcExceptionHandling::RackMiddleware.new(app) })
+    end
   end
 end

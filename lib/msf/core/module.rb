@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf
 
@@ -34,7 +33,6 @@ module Msf
     autoload :Privileged, 'msf/core/module/privileged'
     autoload :Ranking, 'msf/core/module/ranking'
     autoload :Reference, 'msf/core/module/reference'
-    autoload :Search, 'msf/core/module/search'
     autoload :SiteReference, 'msf/core/module/reference'
     autoload :Target, 'msf/core/module/target'
     autoload :Type, 'msf/core/module/type'
@@ -57,7 +55,6 @@ module Msf
     include Msf::Module::Options
     include Msf::Module::Privileged
     include Msf::Module::Ranking
-    include Msf::Module::Search
     include Msf::Module::Type
     include Msf::Module::UI
     include Msf::Module::UUID
@@ -346,12 +343,17 @@ module Msf
     def default_cred?
       return false unless post_auth?
 
-      cred_opts_with_default = required_cred_options.select { |name, opt|
-        case opt.type
-        when 'string'
-          return true unless opt.default.blank?
+      required_cred_options.all? do |name, opt|
+        if opt.type == 'string'
+          if !opt.default.blank?
+            true
+          else
+            false
+          end
+        else
+          true
         end
-      }
+      end
 
       false
     end

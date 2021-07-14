@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-
 module Msf
   #
   # Builtin framework options with shortcut methods
@@ -42,7 +41,7 @@ module Msf
 
     # @return [OptAddressRange]
     def self.RHOSTS(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ])
+      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     def self.RHOST(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
@@ -85,10 +84,12 @@ module Msf
           aliases: ['PayloadProxyPort']
         ),
         OptString.new('HttpProxyUser', 'An optional proxy server username',
-          aliases: ['PayloadProxyUser']
+          aliases: ['PayloadProxyUser'],
+          max_length: Rex::Payloads::Meterpreter::Config::PROXY_USER_SIZE - 1
         ),
         OptString.new('HttpProxyPass', 'An optional proxy server password',
-          aliases: ['PayloadProxyPass']
+          aliases: ['PayloadProxyPass'],
+          max_length: Rex::Payloads::Meterpreter::Config::PROXY_PASS_SIZE - 1
         ),
         OptEnum.new('HttpProxyType', 'The type of HTTP proxy',
           enums: ['HTTP', 'SOCKS'],

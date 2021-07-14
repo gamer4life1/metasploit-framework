@@ -19,12 +19,13 @@ module Msf::DBManager::SessionEvent
   #   All fields are converted to strings and results are returned if the pattern is matched.
   # @return [Array<Mdm::SessionEvent>|Mdm::SessionEvent::ActiveRecord_Relation] session events that are matched.
   def session_events(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::SessionEvent.find(opts[:id]))
       end
 
+      opts = opts.clone() # protect the original caller's opts
       # Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
       opts.delete(:workspace)
 
@@ -66,7 +67,7 @@ module Msf::DBManager::SessionEvent
     raise ArgumentError.new("Expected an :etype") unless opts[:etype]
     session = nil
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     if opts[:session].respond_to? :db_record
       session = opts[:session].db_record
       if session.nil?
